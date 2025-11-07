@@ -3,76 +3,78 @@
   "theme": "maple",
   "name": "PalaCMS Docs",
   "colors": {
-    "primary": "#ff6b35"
+    "primary": "#ff6b35",
+    "light": "#ff6b35",
+    "dark": "#ff6b35"
   },
   "favicon": "/favicon.jpg",
   "navigation": {
-    "tabs": [
+    "groups": [
       {
-        "tab": "Docs",
-"groups": [
-  {
-    "group": "Getting Started",
-    "pages": [
-      "index",
-      "getting-started/installation",
-      "getting-started/core-concepts",
-      "getting-started/quickstart"
-    ]
-  },
-  {
-    "group": "Building Sites",
-    "pages": [
-      "building-sites/your-first-site",
-      "building-sites/writing-components",
-      "building-sites/defining-page-types",
-      "building-sites/working-with-fields",
-      "building-sites/using-the-component-library",
-      "building-sites/using-ai-to-build-components"
-    ]
-  },
-  {
-    "group": "Collaboration",
-    "pages": [
-      "collaboration/setting-up-page-types-for-editors",
-      "collaboration/inviting-collaborators",
-      "collaboration/example-blog",
-      "collaboration/multi-dev-workflows"
-    ]
-  },
-  {
-    "group": "Content Management",
-    "pages": [
-      "content-management/using-the-editor",
-      "content-management/visual-vs-form",
-      "content-management/publishing"
-    ]
-  },
-  {
-    "group": "Reference",
-    "pages": [
-      "reference/field-types"
-    ]
-  }
-]
+        "group": "Getting Started",
+        "icon": "rocket",
+        "pages": [
+          "index",
+          "getting-started/installation",
+          "getting-started/core-concepts",
+          "getting-started/quickstart"
+        ]
+      },
+      {
+        "group": "Building Sites",
+        "icon": "code",
+        "pages": [
+          "building-sites/your-first-site",
+          "building-sites/writing-components",
+          "building-sites/defining-page-types",
+          "building-sites/working-with-fields",
+          "building-sites/using-the-component-library",
+          "building-sites/using-ai-to-build-components"
+        ]
+      },
+      {
+        "group": "Collaboration",
+        "icon": "users",
+        "pages": [
+          "collaboration/setting-up-page-types-for-editors",
+          "collaboration/inviting-collaborators",
+          "collaboration/example-blog",
+          "collaboration/multi-dev-workflows"
+        ]
+      },
+      {
+        "group": "Content Management",
+        "icon": "pen-to-square",
+        "pages": [
+          "content-management/using-the-editor",
+          "content-management/visual-vs-form",
+          "content-management/publishing"
+        ]
+      },
+      {
+        "group": "Reference",
+        "icon": "book",
+        "pages": [
+          "reference/field-types"
+        ]
       }
     ],
     "global": {
       "anchors": [
         {
           "anchor": "Website",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "href": "https://palacms.com",
+          "icon": "globe"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "GitHub",
+          "href": "https://github.com/palacms/palacms",
+          "icon": "github"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Discord",
+          "href": "https://discord.gg/pala",
+          "icon": "discord"
         }
       ]
     }
