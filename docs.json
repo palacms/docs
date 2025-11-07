@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "willow",
+  "theme": "maple",
   "name": "PalaCMS Docs",
   "colors": {
     "primary": "#ff6b35"
@@ -14,7 +14,7 @@
   {
     "group": "Getting Started",
     "pages": [
-      "getting-started/index",
+      "index",
       "getting-started/installation",
       "getting-started/core-concepts",
       "getting-started/quickstart"
