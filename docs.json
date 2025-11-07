@@ -3,7 +3,7 @@
   "theme": "willow",
   "name": "PalaCMS Docs",
   "colors": {
-    "primary": "#16A34A",
+    "primary": "#ff6b35",
     "light": "#07C983",
     "dark": "#15803D"
   },
@@ -14,7 +14,7 @@
         "tab": "Docs",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
               "quickstart",
@@ -44,12 +44,6 @@
               "essentials/code",
               "essentials/images",
               "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "Reference",
-            "pages": [
-              "ai-tools/cursor"
             ]
           }
         ]
@@ -83,26 +77,23 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@palacms.com"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "label": "Cloud",
+      "href": "https://palacms.com"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "claude",
+      "chatgpt",
+      "perplexity"
+    ]
   },
   "footer": {
     "socials": {
