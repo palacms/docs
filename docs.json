@@ -11,7 +11,7 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Docs",
         "groups": [
           {
             "group": "Getting started",
@@ -22,14 +22,7 @@
             ]
           },
           {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
+            "group": "Building Sites",
             "pages": [
               "essentials/markdown",
               "essentials/code",
@@ -38,31 +31,25 @@
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Handoff & Collaboration",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
+              "essentials/settings",
+              "essentials/navigation"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Content Management",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "essentials/markdown",
+              "essentials/code",
+              "essentials/images",
+              "essentials/reusable-snippets"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "ai-tools/cursor"
             ]
           }
         ]
@@ -71,9 +58,14 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
+          "anchor": "Website",
           "href": "https://mintlify.com/docs",
           "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://mintlify.com/blog",
+          "icon": "newspaper"
         },
         {
           "anchor": "Blog",
@@ -115,7 +107,7 @@
   "footer": {
     "socials": {
       "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
+      "github": "https://github.com/palacms/palacms",
       "linkedin": "https://linkedin.com/company/mintlify"
     }
   }
