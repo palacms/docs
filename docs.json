@@ -3,50 +3,58 @@
   "theme": "willow",
   "name": "PalaCMS Docs",
   "colors": {
-    "primary": "#ff6b35",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#ff6b35"
   },
   "favicon": "/favicon.jpg",
   "navigation": {
     "tabs": [
       {
         "tab": "Docs",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
-          },
-          {
-            "group": "Building Sites",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "Handoff & Collaboration",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Content Management",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          }
-        ]
+"groups": [
+  {
+    "group": "Getting Started",
+    "pages": [
+      "getting-started/index",
+      "getting-started/installation",
+      "getting-started/core-concepts",
+      "getting-started/quickstart"
+    ]
+  },
+  {
+    "group": "Building Sites",
+    "pages": [
+      "building-sites/your-first-site",
+      "building-sites/writing-components",
+      "building-sites/defining-page-types",
+      "building-sites/working-with-fields",
+      "building-sites/using-the-component-library",
+      "building-sites/using-ai-to-build-components"
+    ]
+  },
+  {
+    "group": "Collaboration",
+    "pages": [
+      "collaboration/setting-up-page-types-for-editors",
+      "collaboration/inviting-collaborators",
+      "collaboration/example-blog",
+      "collaboration/multi-dev-workflows"
+    ]
+  },
+  {
+    "group": "Content Management",
+    "pages": [
+      "content-management/using-the-editor",
+      "content-management/visual-vs-form",
+      "content-management/publishing"
+    ]
+  },
+  {
+    "group": "Reference",
+    "pages": [
+      "reference/field-types"
+    ]
+  }
+]
       }
     ],
     "global": {
