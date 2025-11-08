@@ -3,3 +3,528 @@ title: 'Writing Components'
 description: 'Build reusable Svelte components and turn them into content blocks.'
 ---
 
+Components are the foundation of Pala. You write Svelte components, attach content fields to them, and they become blocks that editors can use to build pages. This guide covers everything you need to know about writing effective components.
+
+## Components vs Blocks
+
+Understanding the distinction helps you build better:
+
+**Components** are pure Svelte code:
+- Reusable UI elements (Button, Card, Hero)
+- Accept props and handle logic
+- No content fields attached
+- Can be used anywhere in your Svelte code
+
+**Blocks** are components with content fields:
+- Same Svelte component code
+- Plus editable content fields (text, images, links)
+- Used specifically in page types and pages
+- Editors can modify content, not code
+
+<Info>
+When you create a block in Pala, you're writing a Svelte component and then attaching fields to it. The component code stays the same; fields make it editable.
+</Info>
+
+## Component Structure
+
+Every Pala component follows this structure:
+
+```svelte
+<script>
+  // 1. Import statements (if needed)
+  // 2. Props (content fields)
+  // 3. Reactive logic
+</script>
+
+<!-- 4. HTML markup -->
+
+<style>
+  /* 5. Scoped styles */
+</style>
+```
+
+## Writing Your First Component
+
+Let's build a simple Button component step by step:
+
+<Steps>
+<Step title="Start with props">
+  Define what data your component needs:
+  
+  ```svelte
+  <script>
+    export let text = "Click me";
+    export let href = "/";
+    export let variant = "primary"; // primary, secondary, outline
+  </script>
+  ```
+  
+  <Tip>
+  Always provide default values for props. This makes components work even if fields aren't filled in.
+  </Tip>
+</Step>
+
+<Step title="Add the markup">
+  Write the HTML structure:
+  
+  ```svelte
+  <a href={href} class="button" class:primary={variant === "primary"} class:secondary={variant === "secondary"} class:outline={variant === "outline"}>
+    {text}
+  </a>
+  ```
+</Step>
+
+<Step title="Style the component">
+  Add scoped styles:
+  
+  ```svelte
+  <style>
+    .button {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .primary {
+      background: #667eea;
+      color: white;
+    }
+    
+    .secondary {
+      background: #764ba2;
+      color: white;
+    }
+    
+    .outline {
+      border: 2px solid #667eea;
+      color: #667eea;
+      background: transparent;
+    }
+    
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+  ```
+</Step>
+</Steps>
+
+## Best Practices
+
+### 1. Always Provide Defaults
+
+Components should work even with empty fields:
+
+```svelte
+<script>
+  // Good: Has defaults
+  export let headline = "";
+  export let subheadline = "";
+  
+  // Bad: No defaults (breaks if empty)
+  export let headline;
+  export let subheadline;
+</script>
+```
+
+### 2. Use Conditional Rendering
+
+Only show elements when content exists:
+
+```svelte
+<script>
+  export let image_url = "";
+  export let caption = "";
+</script>
+
+{#if image_url}
+  <figure>
+    <img src={image_url} alt={caption} />
+    {#if caption}
+      <figcaption>{caption}</figcaption>
+    {/if}
+  </figure>
+{/if}
+```
+
+### 3. Handle Arrays Safely
+
+When working with repeater fields:
+
+```svelte
+<script>
+  export let items = [];
+</script>
+
+{#if items && items.length > 0}
+  <ul>
+    {#each items as item}
+      <li>{item.name}</li>
+    {/each}
+  </ul>
+{/if}
+```
+
+### 4. Use Scoped Styles
+
+Pala components use scoped styles by default. Use `:global()` when you need to style child elements:
+
+```svelte
+<style>
+  .content :global(h2) {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .content :global(p) {
+    line-height: 1.8;
+  }
+</style>
+```
+
+### 5. Make Components Responsive
+
+Always consider mobile devices:
+
+```svelte
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+</style>
+```
+
+## Working with Rich Content
+
+### Rich Text Fields
+
+When using rich text fields, use `{@html}` to render HTML:
+
+```svelte
+<script>
+  export let content = "";
+</script>
+
+<div class="rich-text">
+  {@html content}
+</div>
+
+<style>
+  .rich-text :global(h2) {
+    font-size: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .rich-text :global(p) {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+  }
+  
+  .rich-text :global(ul), .rich-text :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+  }
+</style>
+```
+
+<Warning>
+Only use `{@html}` with trusted content. Pala sanitizes rich text fields, but be cautious with user-generated content.
+</Warning>
+
+### Markdown Content
+
+If you're using markdown fields, you'll need to process them. Pala handles this automatically for markdown fields, but you can also use a markdown processor:
+
+```svelte
+<script>
+  import { marked } from 'marked'; // If you add this dependency
+  
+  export let markdown_content = "";
+  
+  $: html_content = marked(markdown_content);
+</script>
+
+<div class="markdown-content">
+  {@html html_content}
+</div>
+```
+
+## Advanced Patterns
+
+### Reactive Statements
+
+Use reactive statements (`$:`) for computed values:
+
+```svelte
+<script>
+  export let items = [];
+  export let max_items = 5;
+  
+  $: displayed_items = items.slice(0, max_items);
+  $: has_more = items.length > max_items;
+</script>
+
+{#each displayed_items as item}
+  <div>{item.name}</div>
+{/each}
+
+{#if has_more}
+  <p>And {items.length - max_items} more...</p>
+{/if}
+```
+
+### Event Handling
+
+Handle user interactions:
+
+```svelte
+<script>
+  export let cta_text = "Click me";
+  export let cta_link = "/";
+  
+  function handleClick() {
+    // Analytics, tracking, etc.
+    console.log('CTA clicked');
+  }
+</script>
+
+<a href={cta_link} on:click={handleClick} class="cta">
+  {cta_text}
+</a>
+```
+
+### Conditional Classes
+
+Use dynamic classes for variants:
+
+```svelte
+<script>
+  export let variant = "default";
+  export let size = "medium";
+</script>
+
+<div class="card" class:primary={variant === "primary"} class:large={size === "large"}>
+  <!-- content -->
+</div>
+
+<style>
+  .card.primary {
+    background: #667eea;
+    color: white;
+  }
+  
+  .card.large {
+    padding: 2rem;
+  }
+</style>
+```
+
+## Component Composition
+
+Build complex components from simpler ones:
+
+```svelte
+<script>
+  import Button from './Button.svelte';
+  
+  export let headline = "";
+  export let description = "";
+  export let cta_text = "";
+  export let cta_link = "/";
+</script>
+
+<section class="hero">
+  <h1>{headline}</h1>
+  <p>{description}</p>
+  <Button text={cta_text} href={cta_link} variant="primary" />
+</section>
+```
+
+<Info>
+In Pala's component editor, you write single-file components. For composition, you can create separate blocks and reference them, or write everything in one component file.
+</Info>
+
+## Performance Considerations
+
+### Lazy Loading Images
+
+For image-heavy components:
+
+```svelte
+<script>
+  export let image_url = "";
+  export let alt_text = "";
+</script>
+
+<img src={image_url} alt={alt_text} loading="lazy" />
+```
+
+### Optimize Re-renders
+
+Use reactive statements efficiently:
+
+```svelte
+<script>
+  export let items = [];
+  
+  // Good: Only recalculates when items change
+  $: sorted_items = [...items].sort((a, b) => a.name.localeCompare(b.name));
+  
+  // Avoid: Recalculating on every render
+  let sorted_items = items.sort((a, b) => a.name.localeCompare(b.name));
+</script>
+```
+
+## Testing Your Components
+
+### Use the Preview
+
+Pala's in-browser editor provides instant preview:
+
+1. Write your component code
+2. Add test content in fields
+3. See changes update in real-time
+
+<Tip>
+Test with empty fields, long text, special characters, and edge cases to ensure your component is robust.
+</Tip>
+
+### Test Different Screen Sizes
+
+Use browser dev tools in the preview to test:
+- Mobile (320px - 768px)
+- Tablet (768px - 1024px)
+- Desktop (1024px+)
+
+## Common Patterns
+
+<AccordionGroup>
+<Accordion title="Card Component">
+### Card Component
+
+```svelte
+<script>
+  export let title = "";
+  export let description = "";
+  export let image_url = "";
+  export let link = "";
+</script>
+
+<article class="card">
+  {#if image_url}
+    <img src={image_url} alt={title} />
+  {/if}
+  <div class="card-content">
+    <h3>{title}</h3>
+    {#if description}
+      <p>{description}</p>
+    {/if}
+    {#if link}
+      <a href={link} class="card-link">Read More →</a>
+    {/if}
+  </div>
+</article>
+```
+</Accordion>
+
+<Accordion title="Grid Layout">
+### Grid Layout
+
+```svelte
+<script>
+  export let items = [];
+  export let columns = 3;
+</script>
+
+<section class="grid" style="--columns: {columns}">
+  {#each items as item}
+    <div class="grid-item">{item.content}</div>
+  {/each}
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(var(--columns), 1fr);
+    gap: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+```
+</Accordion>
+
+<Accordion title="Accordion Component">
+### Accordion Component
+
+```svelte
+<script>
+  export let items = [];
+  
+  let open_index = null;
+  
+  function toggle(index) {
+    open_index = open_index === index ? null : index;
+  }
+</script>
+
+<div class="accordion">
+  {#each items as item, index}
+    <div class="accordion-item">
+      <button class="accordion-header" on:click={() => toggle(index)}>
+        {item.title}
+        <span class="icon">{open_index === index ? '−' : '+'}</span>
+      </button>
+      {#if open_index === index}
+        <div class="accordion-content">
+          {item.content}
+        </div>
+      {/if}
+    </div>
+  {/each}
+</div>
+```
+</Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Working with Fields" icon="pen-to-square" href="/building-sites/working-with-fields">
+  Learn how to attach content fields to your components.
+</Card>
+
+<Card title="Using the Component Library" icon="layer-group" href="/building-sites/using-the-component-library">
+  Organize and reuse components across sites.
+</Card>
+
+<Card title="Field Types Reference" icon="book" href="/reference/field-types">
+  Complete reference of all available field types.
+</Card>
+
+<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
+  See components in action with a complete site example.
+</Card>
+</CardGroup>
+
+<Tip>
+The best components are simple, focused, and reusable. Start with basic functionality, then add complexity only when needed.
+</Tip>

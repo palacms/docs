@@ -3,3 +3,300 @@ title: 'Quickstart'
 description: 'Build and deploy your first Pala site in minutes.'
 ---
 
+This quickstart guide walks you through creating your first Pala site, building a simple block, and publishing it. You'll have a live site in under 10 minutes.
+
+<Info>
+This guide assumes you've completed [installation](/getting-started/installation). If you haven't, start there first.
+</Info>
+
+## Step 1: Create Your First Site
+
+When you first access Pala, you'll see the site creation screen. Here's what to do:
+
+<Steps>
+<Step title="Enter site details">
+  Provide a name for your site. This is for internal organization and won't appear on your published site.
+  
+  <Check>
+  The site name can be changed later in settings.
+  </Check>
+</Step>
+
+<Step title="Configure your domain">
+  If you're using Pala Cloud, your site will be available at a subdomain. For self-hosted installations, enter your domain name.
+  
+  <Warning>
+  For self-hosted installations, make sure your DNS is configured to point to your server before creating the site.
+  </Warning>
+</Step>
+
+<Step title="Complete site creation">
+  Click "Create Site" to initialize your new site. Pala will set up the database and default configuration.
+</Step>
+</Steps>
+
+<Check>
+Your site is created! You'll now see your site dashboard with options to create page types, build blocks, and manage content.
+</Check>
+
+## Step 2: Create a Page Type
+
+Page types define what kind of pages editors can create. Let's create a simple "Homepage" page type:
+
+<Steps>
+<Step title="Navigate to page types">
+  In your site dashboard, click "Page Types" in the sidebar, then click "Create Page Type".
+</Step>
+
+<Step title="Configure the page type">
+  - **Name**: "Homepage"
+  - **Description**: "Landing page for the site"
+  - **Slug**: "homepage" (used in URLs)
+  
+  <Info>
+  The slug determines the URL structure. A page of this type will be accessible at `/homepage` by default.
+  </Info>
+</Step>
+
+<Step title="Set available blocks">
+  For now, leave the available blocks empty. We'll add blocks in the next step after we create one.
+  
+  Click "Create" to save the page type.
+</Step>
+</Steps>
+
+<Check>
+Your "Homepage" page type is created and ready. Next, we'll build a block to use with it.
+</Check>
+
+## Step 3: Build Your First Block
+
+Blocks are the building blocks of your pages. Let's create a simple Hero block:
+
+<Steps>
+<Step title="Open the component editor">
+  Click "Component Library" in the sidebar, then "Create Block". This opens the in-browser code editor.
+</Step>
+
+<Step title="Write the component code">
+  Replace the default code with a simple Hero component:
+  
+  ```svelte
+  <script>
+    // Content fields will be added here
+  </script>
+  
+  <section class="hero">
+    <h1>Welcome to Pala</h1>
+    <p>Build beautiful sites with code and content together.</p>
+    <a href="/about" class="button">Get Started</a>
+  </section>
+  
+  <style>
+    .hero {
+      padding: 4rem 2rem;
+      text-align: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+    
+    .button {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+    
+    .button:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+  ```
+  
+  <Tip>
+  The editor provides syntax highlighting, auto-completion, and instant preview. Make changes and see them update in real-time.
+  </Tip>
+</Step>
+
+<Step title="Add content fields">
+  Now let's make the text editable by adding fields. Click "Add Field" and create:
+  
+  - **Field name**: `headline` (Text field)
+  - **Field name**: `subheadline` (Text field)
+  - **Field name**: `cta_text` (Text field)
+  - **Field name**: `cta_link` (Text field)
+  
+  Update your component to use these fields:
+  
+  ```svelte
+  <script>
+    export let headline = "Welcome to Pala";
+    export let subheadline = "Build beautiful sites with code and content together.";
+    export let cta_text = "Get Started";
+    export let cta_link = "/about";
+  </script>
+  
+  <section class="hero">
+    <h1>{headline}</h1>
+    <p>{subheadline}</p>
+    <a href={cta_link} class="button">{cta_text}</a>
+  </section>
+  
+  <style>
+    /* ... existing styles ... */
+  </style>
+  ```
+</Step>
+
+<Check>
+Your component now has editable fields. Editors can change the headline, subheadline, and CTA text without touching code.
+</Check>
+
+<Step title="Save the block">
+  Click "Save Block" and give it a name: "Hero". This adds it to your component library.
+</Step>
+</Steps>
+
+<Check>
+Your Hero block is saved to your component library and ready to use across all your sites.
+</Check>
+
+## Step 4: Add the Block to Your Page Type
+
+Now let's make this block available for editors to use:
+
+<Steps>
+<Step title="Edit the page type">
+  Go back to "Page Types" and click on your "Homepage" page type to edit it.
+</Step>
+
+<Step title="Add available blocks">
+  In the "Available Blocks" section, click "Add Block" and select your "Hero" block.
+  
+  <Info>
+  You can add multiple blocks here. Editors will be able to choose from any block you make available.
+  </Info>
+</Step>
+
+<Step title="Save changes">
+  Click "Save" to update the page type.
+</Step>
+</Steps>
+
+<Check>
+Your page type now includes the Hero block. Editors can now use it when creating pages.
+</Check>
+
+## Step 5: Create Your First Page
+
+Now let's create an actual page using the page type we just set up:
+
+<Steps>
+<Step title="Create a new page">
+  Click "Pages" in the sidebar, then "Create Page".
+</Step>
+
+<Step title="Choose page type">
+  Select "Homepage" as the page type.
+</Step>
+
+<Step title="Add the Hero block">
+  Click "Add Block" and select "Hero" from the available blocks.
+</Step>
+
+<Step title="Edit the content">
+  Click on the Hero block to open the editor. You'll see form fields for:
+  - Headline
+  - Subheadline
+  - CTA Text
+  - CTA Link
+  
+  Fill in your content:
+  - **Headline**: "Welcome to My Site"
+  - **Subheadline**: "Built with Pala CMS"
+  - **CTA Text**: "Learn More"
+  - **CTA Link**: "/about"
+  
+  <Tip>
+  You can also use the visual editor to see your changes in real-time as you type.
+  </Tip>
+</Step>
+
+<Step title="Save the page">
+  Click "Save" to save your page as a draft, or "Publish" to make it live immediately.
+</Step>
+</Steps>
+
+<Check>
+Your first page is created with the Hero block! You can now preview it or publish it to make it live.
+</Check>
+
+## Step 6: Publish Your Site
+
+Your page is ready to go live:
+
+<Steps>
+<Step title="Review your page">
+  Use the preview feature to see how your page looks before publishing.
+</Step>
+
+<Step title="Publish">
+  Click "Publish" on your page. Pala will generate a static site and deploy it.
+  
+  <Check>
+  Your site is now live! Visit the URL shown in your site settings to see it.
+  </Check>
+</Step>
+</Steps>
+
+<Info>
+Pala generates static HTML, CSS, and JavaScript for maximum performance. Your site is automatically optimized for SEO and speed.
+</Info>
+
+## What's Next?
+
+You've built your first Pala site! Here's where to go from here:
+
+<CardGroup cols={2}>
+<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
+  Follow a complete walkthrough to build a full-featured site with multiple blocks and page types.
+</Card>
+
+<Card title="Writing Components" icon="code" href="/building-sites/writing-components">
+  Learn best practices for building reusable Svelte components and blocks.
+</Card>
+
+<Card title="Defining Page Types" icon="layer-group" href="/building-sites/defining-page-types">
+  Master page types to create powerful content structures for editors.
+</Card>
+
+<Card title="Working with Fields" icon="pen-to-square" href="/building-sites/working-with-fields">
+  Explore all the field types available for making blocks editable.
+</Card>
+</CardGroup>
+
+## Common Next Steps
+
+- **Add more blocks**: Create Text, Image, and Call-to-Action blocks to build richer pages
+- **Create more page types**: Set up Blog Post, About, and Contact page types
+- **Customize styling**: Use CSS variables in your site settings to create a design system
+- **Invite editors**: Add team members who can create and edit content without touching code
+
+<Tip>
+The component library stores all your blocks. Once created, they're available across all your sites, making it easy to build a personal library of reusable components.
+</Tip>

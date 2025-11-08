@@ -3,3 +3,757 @@ title: 'Field Types'
 description: 'Complete reference of all available field types for blocks and pages.'
 ---
 
+Fields are what make blocks editable. You attach fields to your Svelte components, and editors can fill them in without touching code. This reference covers all available field types in Pala.
+
+<Info>
+Fields can be added to both blocks (component-level) and page types (page-level). The field types work the same in both contexts.
+</Info>
+
+<AccordionGroup>
+<Accordion title="Text Fields">
+## Text Fields
+
+### Text
+
+Single-line text input for short text like headlines, labels, or names.
+
+**Use for:**
+- Headlines and titles
+- Button labels
+- Names and short descriptions
+- URLs and links
+
+**Component usage:**
+```svelte
+<script>
+  export let headline = "";
+</script>
+
+<h1>{headline}</h1>
+```
+
+**Field options:**
+- **Default value**: Pre-filled text
+- **Placeholder**: Hint text shown when empty
+- **Required**: Whether field must be filled
+- **Max length**: Maximum character count
+
+### Textarea
+
+Multi-line text input for longer text content.
+
+**Use for:**
+- Descriptions
+- Short paragraphs
+- Code snippets
+- Notes
+
+**Component usage:**
+```svelte
+<script>
+  export let description = "";
+</script>
+
+<p>{description}</p>
+```
+
+**Field options:**
+- **Default value**: Pre-filled text
+- **Placeholder**: Hint text
+- **Required**: Whether field must be filled
+- **Rows**: Number of visible lines
+- **Max length**: Maximum character count
+
+### Rich Text
+
+WYSIWYG editor for formatted text with HTML output.
+
+**Use for:**
+- Article content
+- Descriptions with formatting
+- Long-form content
+- Any text needing formatting
+
+**Component usage:**
+```svelte
+<script>
+  export let content = "";
+</script>
+
+<div class="content">
+  {@html content}
+</div>
+```
+
+**Field options:**
+- **Default value**: Pre-filled HTML
+- **Toolbar options**: Which formatting tools to show
+- **Allowed tags**: HTML tags that can be used
+
+<Warning>
+Rich text fields output HTML. Always use `{@html}` in your component to render it, and style it with CSS.
+</Warning>
+
+### Markdown
+
+Markdown editor for formatted text.
+
+**Use for:**
+- Documentation
+- Blog posts
+- README content
+- Developer-friendly content
+
+**Component usage:**
+```svelte
+<script>
+  // Pala processes markdown automatically
+  export let content = "";
+</script>
+
+<div class="markdown">
+  {@html content}
+</div>
+```
+
+**Field options:**
+- **Default value**: Pre-filled markdown
+- **Preview**: Show live preview while editing
+</Accordion>
+
+<Accordion title="Number Fields">
+## Number Fields
+
+### Number
+
+Numeric input for integers and decimals.
+
+**Use for:**
+- Prices
+- Quantities
+- Ratings
+- Measurements
+
+**Component usage:**
+```svelte
+<script>
+  export let price = 0;
+  export let quantity = 1;
+</script>
+
+<p>Price: ${price}</p>
+<p>Quantity: {quantity}</p>
+```
+
+**Field options:**
+- **Default value**: Default number
+- **Min value**: Minimum allowed value
+- **Max value**: Maximum allowed value
+- **Step**: Increment/decrement step
+- **Decimal places**: Number of decimal places
+</Accordion>
+
+<Accordion title="Selection Fields">
+## Selection Fields
+
+### Select
+
+Dropdown menu for selecting one option from a list.
+
+**Use for:**
+- Categories
+- Variants
+- Status options
+- Single-choice selections
+
+**Component usage:**
+```svelte
+<script>
+  export let category = "general";
+</script>
+
+<span class="category">{category}</span>
+```
+
+**Field options:**
+- **Options**: List of available options
+- **Default value**: Pre-selected option
+- **Required**: Whether selection is required
+
+### Multi-Select
+
+Allows selecting multiple options from a list.
+
+**Use for:**
+- Tags
+- Categories (multiple)
+- Features
+- Any multi-choice selection
+
+**Component usage:**
+```svelte
+<script>
+  export let tags = [];
+</script>
+
+<div class="tags">
+  {#each tags as tag}
+    <span class="tag">{tag}</span>
+  {/each}
+</div>
+```
+
+**Field options:**
+- **Options**: List of available options
+- **Default value**: Pre-selected options
+- **Max selections**: Maximum number of selections
+
+### Radio
+
+Radio button group for single selection.
+
+**Use for:**
+- Variants with visual distinction
+- Options that need to be visible
+- Small option sets
+
+**Component usage:**
+```svelte
+<script>
+  export let size = "medium";
+</script>
+
+<p>Selected size: {size}</p>
+```
+
+**Field options:**
+- **Options**: List of available options
+- **Default value**: Pre-selected option
+
+### Checkbox
+
+Boolean checkbox for yes/no options.
+
+**Use for:**
+- Feature toggles
+- Boolean settings
+- Include/exclude options
+
+**Component usage:**
+```svelte
+<script>
+  export let featured = false;
+  export let published = true;
+</script>
+
+{#if featured}
+  <span class="badge">Featured</span>
+{/if}
+```
+
+**Field options:**
+- **Default value**: Checked or unchecked by default
+- **Label**: Text shown next to checkbox
+</Accordion>
+
+<Accordion title="Date and Time Fields">
+## Date and Time Fields
+
+### Date
+
+Date picker for selecting dates.
+
+**Use for:**
+- Publication dates
+- Event dates
+- Deadlines
+- Any date information
+
+**Component usage:**
+```svelte
+<script>
+  export let publish_date = "";
+</script>
+
+<time datetime={publish_date}>
+  {new Date(publish_date).toLocaleDateString()}
+</time>
+```
+
+**Field options:**
+- **Default value**: Pre-selected date
+- **Min date**: Earliest selectable date
+- **Max date**: Latest selectable date
+- **Format**: Date display format
+
+### DateTime
+
+Date and time picker for precise timestamps.
+
+**Use for:**
+- Event start/end times
+- Scheduled publishing
+- Timestamps
+- Any date with time
+
+**Component usage:**
+```svelte
+<script>
+  export let event_start = "";
+</script>
+
+<time datetime={event_start}>
+  {new Date(event_start).toLocaleString()}
+</time>
+```
+
+**Field options:**
+- **Default value**: Pre-selected date and time
+- **Min datetime**: Earliest selectable
+- **Max datetime**: Latest selectable
+- **Format**: Display format
+
+### Time
+
+Time picker for time-only values.
+
+**Use for:**
+- Opening hours
+- Duration
+- Time-only information
+
+**Component usage:**
+```svelte
+<script>
+  export let opening_time = "09:00";
+</script>
+
+<p>Opens at {opening_time}</p>
+```
+</Accordion>
+
+<Accordion title="Media Fields">
+## Media Fields
+
+### Image
+
+Image upload and selection field.
+
+**Use for:**
+- Photos
+- Graphics
+- Icons
+- Any visual content
+
+**Component usage:**
+```svelte
+<script>
+  export let image_url = "";
+  export let alt_text = "";
+</script>
+
+{#if image_url}
+  <img src={image_url} alt={alt_text} />
+{/if}
+```
+
+**Field options:**
+- **Default image**: Default selection
+- **Alt text required**: Force alt text entry
+- **Allowed formats**: JPG, PNG, GIF, WebP
+- **Max file size**: Maximum upload size
+- **Aspect ratio**: Enforce specific ratio
+- **Dimensions**: Min/max width and height
+
+<Tip>
+Always include alt text for accessibility. Use the `alt_text` field option or a separate text field.
+</Tip>
+
+### Video
+
+Video upload or embed field.
+
+**Use for:**
+- Video content
+- Embedded videos
+- Video backgrounds
+
+**Component usage:**
+```svelte
+<script>
+  export let video_url = "";
+  export let video_type = "upload"; // upload or embed
+</script>
+
+{#if video_type === "upload"}
+  <video src={video_url} controls></video>
+{:else}
+  <iframe src={video_url}></iframe>
+{/if}
+```
+
+**Field options:**
+- **Video type**: Upload or embed URL
+- **Allowed formats**: MP4, WebM, etc.
+- **Max file size**: Maximum upload size
+
+### File
+
+File upload field for documents and other files.
+
+**Use for:**
+- PDFs
+- Documents
+- Downloads
+- Any file type
+
+**Component usage:**
+```svelte
+<script>
+  export let file_url = "";
+  export let file_name = "";
+</script>
+
+<a href={file_url} download>{file_name}</a>
+```
+
+**Field options:**
+- **Allowed types**: File extensions allowed
+- **Max file size**: Maximum upload size
+</Accordion>
+
+<Accordion title="Link Fields">
+## Link Fields
+
+### Link
+
+URL input field for links.
+
+**Use for:**
+- External links
+- Internal page links
+- Navigation items
+- Any URL
+
+**Component usage:**
+```svelte
+<script>
+  export let link_url = "/";
+  export let link_text = "Click here";
+</script>
+
+<a href={link_url}>{link_text}</a>
+```
+
+**Field options:**
+- **Default value**: Pre-filled URL
+- **Link type**: Internal, external, email, phone
+- **Open in new tab**: Whether to add target="_blank"
+
+### Email
+
+Email address input with validation.
+
+**Use for:**
+- Contact emails
+- Newsletter signups
+- User emails
+
+**Component usage:**
+```svelte
+<script>
+  export let contact_email = "";
+</script>
+
+<a href="mailto:{contact_email}">{contact_email}</a>
+```
+
+**Field options:**
+- **Default value**: Pre-filled email
+- **Required**: Whether email is required
+</Accordion>
+
+<Accordion title="Color Fields">
+## Color Fields
+
+### Color
+
+Color picker for selecting colors.
+
+**Use for:**
+- Background colors
+- Text colors
+- Accent colors
+- Theme customization
+
+**Component usage:**
+```svelte
+<script>
+  export let background_color = "#ffffff";
+  export let text_color = "#000000";
+</script>
+
+<div style="background-color: {background_color}; color: {text_color};">
+  Content
+</div>
+```
+
+**Field options:**
+- **Default value**: Default color (hex)
+- **Color format**: Hex, RGB, HSL
+- **Preset colors**: Pre-defined color options
+</Accordion>
+
+<Accordion title="Structured Fields">
+## Structured Fields
+
+### Repeater
+
+Repeatable group of fields for lists and arrays.
+
+**Use for:**
+- Lists of items
+- Card grids
+- Feature lists
+- Any repeating content
+
+**Component usage:**
+```svelte
+<script>
+  export let items = [];
+</script>
+
+<ul>
+  {#each items as item}
+    <li>
+      <h3>{item.title}</h3>
+      <p>{item.description}</p>
+    </li>
+  {/each}
+</ul>
+```
+
+**Field options:**
+- **Fields**: Fields within each repeated item
+- **Min items**: Minimum number of items
+- **Max items**: Maximum number of items
+- **Default items**: Number of items to show by default
+
+<Example>
+A "Features" block might use a repeater with fields: `title` (Text), `description` (Text), and `icon` (Image). Editors can add multiple features, and each gets the same fields.
+</Example>
+
+### Group
+
+Group of related fields displayed together.
+
+**Use for:**
+- Organizing related fields
+- Complex field structures
+- Nested data
+
+**Component usage:**
+```svelte
+<script>
+  export let author = {
+    name: "",
+    email: "",
+    bio: ""
+  };
+</script>
+
+<div class="author">
+  <h3>{author.name}</h3>
+  <p>{author.bio}</p>
+  <a href="mailto:{author.email}">{author.email}</a>
+</div>
+```
+
+**Field options:**
+- **Fields**: Fields within the group
+- **Collapsible**: Whether group can be collapsed
+</Accordion>
+
+<Accordion title="Advanced Fields">
+## Advanced Fields
+
+### JSON
+
+Raw JSON input for complex data structures.
+
+**Use for:**
+- Complex configurations
+- API responses
+- Custom data structures
+- Developer-controlled content
+
+**Component usage:**
+```svelte
+<script>
+  export let config = "{}";
+  
+  $: config_obj = JSON.parse(config || "{}");
+</script>
+
+<div data-config={config}>
+  <!-- Use config_obj in your component -->
+</div>
+```
+
+<Warning>
+JSON fields are for advanced users. Most use cases are better served by structured fields like Repeaters or Groups.
+</Warning>
+
+### Code
+
+Code editor for code snippets and technical content.
+
+**Use for:**
+- Code examples
+- Configuration snippets
+- Technical documentation
+
+**Component usage:**
+```svelte
+<script>
+  export let code_snippet = "";
+  export let language = "javascript";
+</script>
+
+<pre><code class="language-{language}">{code_snippet}</code></pre>
+```
+
+**Field options:**
+- **Language**: Default syntax highlighting
+- **Theme**: Code editor theme
+</Accordion>
+</AccordionGroup>
+
+## Field Options
+
+Most fields support these common options:
+
+### Validation
+
+- **Required**: Field must be filled
+- **Min/Max**: Minimum and maximum values (for numbers, dates, etc.)
+- **Pattern**: Regex pattern for text validation
+- **Custom validation**: Custom validation rules
+
+### Display
+
+- **Label**: Field label shown to editors
+- **Help text**: Instructions or hints
+- **Placeholder**: Placeholder text
+- **Default value**: Pre-filled value
+
+### Conditional Display
+
+- **Show when**: Display field only when conditions are met
+- **Hide when**: Hide field when conditions are met
+
+<Info>
+Conditional fields help create dynamic forms that show relevant fields based on other field values.
+</Info>
+
+## Best Practices
+
+### 1. Choose the Right Field Type
+
+Match field types to their purpose:
+
+- ✅ Text for headlines
+- ✅ Rich Text for formatted content
+- ✅ Image for photos
+- ✅ Select for categories
+- ❌ Text for long articles (use Rich Text)
+- ❌ Number for phone numbers (use Text with pattern)
+
+### 2. Provide Defaults
+
+Always set sensible defaults:
+
+```svelte
+// Good: Has defaults
+export let headline = "Welcome";
+export let show_cta = true;
+
+// Bad: No defaults (breaks if empty)
+export let headline;
+export let show_cta;
+```
+
+### 3. Use Helpful Labels
+
+Clear labels help editors understand fields:
+
+- ✅ "Featured Image"
+- ✅ "Publication Date"
+- ✅ "Author Name"
+- ❌ "Field 1"
+- ❌ "Data"
+
+### 4. Add Help Text
+
+Help text guides editors:
+
+<Example>
+**Field**: "Featured Image"
+**Help text**: "This image appears at the top of the post and in social media shares. Recommended size: 1200x630px."
+</Example>
+
+### 5. Validate Input
+
+Use validation to prevent errors:
+
+- Required fields for essential data
+- Min/max for numbers and dates
+- Patterns for emails, URLs, phone numbers
+- File type restrictions for uploads
+
+## Field Combinations
+
+### Common Patterns
+
+**Hero Block:**
+- `headline` (Text)
+- `subheadline` (Text)
+- `cta_text` (Text)
+- `cta_link` (Link)
+- `background_image` (Image, optional)
+
+**Card Block:**
+- `title` (Text)
+- `description` (Rich Text)
+- `image` (Image, optional)
+- `link` (Link, optional)
+
+**Feature List:**
+- `features` (Repeater) with:
+  - `title` (Text)
+  - `description` (Text)
+  - `icon` (Image, optional)
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Working with Fields" icon="pen-to-square" href="/building-sites/working-with-fields">
+  Learn how to add fields to your components.
+</Card>
+
+<Card title="Writing Components" icon="code" href="/building-sites/writing-components">
+  See how fields work in component code.
+</Card>
+
+<Card title="Defining Page Types" icon="layer-group" href="/building-sites/defining-page-types">
+  Use fields in page type configuration.
+</Card>
+
+<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
+  See fields in action with real examples.
+</Card>
+</CardGroup>
+
+<Tip>
+Start with simple field types (Text, Image, Link) and add complexity (Repeaters, Groups) as you need it. Most blocks only need a few well-chosen fields.
+</Tip>

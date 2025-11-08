@@ -3,3 +3,227 @@ title: 'Installation'
 description: 'Get started with Pala Cloud or self-host on your own infrastructure.'
 ---
 
+Pala offers two installation options: a hosted cloud platform for managed hosting, or self-hosting for full control over your infrastructure.
+
+<Tabs>
+	<Tab title="Cloud (Recommended)">
+		## Pala Cloud
+
+		A managed hosting solution that handles all the infrastructure for you. No installation, setup, or server management required.
+
+		### What's Included
+
+		- Dedicated server instance for your account
+		- Automatic SSL certificates
+		- Global CDN hosting
+		- Automatic deployments when you publish changes
+		- Built-in collaboration tools
+		- Direct support for setup and troubleshooting
+
+		### Getting Started
+
+		<Steps>
+			<Step title="Sign up and checkout">
+				Go to [palacms.com/cloud](https://palacms.com/cloud) to sign up and complete checkout.
+			</Step>
+			<Step title="Wait for server provisioning">
+				We'll spin up your dedicated server within 24 hours. You'll receive an email with your server address and login credentials once it's ready.
+			</Step>
+			<Step title="Access your instance">
+				Use the credentials provided to log in and start building your first site.
+			</Step>
+		</Steps>
+
+		<Info>
+			Need help getting started or running into issues? We provide direct support to help you get up and running smoothly.
+		</Info>
+	</Tab>
+
+	<Tab title="Self-Hosted">
+		## Self-Hosted Installation
+
+		Run Pala on your own infrastructure for complete control. Ideal for teams with specific security, compliance, or customization requirements.
+
+		Pala's architecture is intentionally simple—a single monolithic application with a SQLite database. This means self-hosting requires minimal operational overhead. No complex microservices, separate database servers, or distributed systems to manage.
+
+		<Warning>
+			**Persistent Storage Required**: Pala stores all code, content, and data in a SQLite database that requires persistent disk storage. It will NOT work on serverless platforms like Vercel, Netlify, or Cloudflare Pages.
+		</Warning>
+
+		### Choose Your Hosting Path
+
+		Select the approach that matches your technical comfort level and requirements. All options can run Pala for **$5-7/month**.
+
+		<Tip>
+		**New to self-hosting?** Start with Railway or Fly.io for the easiest setup. If you need more control or lower costs at scale, consider VPS hosting.
+		</Tip>
+
+		<Tabs>
+			<Tab title="Managed Platforms (Easiest)">
+				**What you get:** One-click deployment, automatic SSL, managed infrastructure. No server management required.
+
+				**[Railway](https://railway.com/deploy/palacms?referralCode=RCPU7k)** (Recommended)
+				- Click deploy button, done in 5 minutes
+				- From $5/month with persistent volumes included
+				- Automatic deployments and SSL certificates
+				- **What you need:** Just a Railway account
+
+				**[Fly.io](https://fly.io)**
+				- Free tier includes 3GB persistent volume
+				- Global edge deployment
+				- Good for testing or small production sites
+				- **What you need:** Fly.io account + CLI installation
+			</Tab>
+
+			<Tab title="VPS Hosting (Most Control)">
+				**What you get:** Full server access, complete customization, lowest cost at scale. Manage your own infrastructure.
+
+				**[Hetzner Cloud](https://cloud.hetzner.com)**
+				- From €4/month (CX22: 2 vCPU, 4GB RAM, 40GB disk)
+				- Best price/performance ratio
+				- European data centers (GDPR-friendly)
+				- **What you need:** Docker, SSH, and Linux knowledge
+
+				**[DigitalOcean](https://www.digitalocean.com)**
+				- From $6/month for basic droplets
+				- Excellent documentation and tutorials
+				- One-click Docker droplet available
+				- **What you need:** Basic Docker and command line knowledge
+			</Tab>
+		</Tabs>
+
+		<Info>
+			**Quick start:** If you just want to try Pala, click the [Railway deploy button](https://railway.com/deploy/palacms?referralCode=RCPU7k) for instant setup. For production sites or when you need full control, choose the VPS path.
+		</Info>
+
+		<Accordion title="Local Development (Optional)">
+			For contributing to Pala or testing locally:
+
+			- **devenv** ([install here](https://devenv.sh/)) or **Dev Container** compatible environment (VS Code)
+			- **Node.js 22+** and **npm**
+			- **Git**
+
+			**Local Development Steps:**
+
+			<Steps>
+				<Step title="Clone the repository">
+					```bash
+					git clone https://github.com/palacms/palacms.git
+					cd palacms
+					```
+				</Step>
+
+				<Step title="Install dependencies">
+					```bash
+					npm install
+					```
+				</Step>
+
+				<Step title="Build the application">
+					```bash
+					npm run build
+					```
+					<Info>
+						Initial build is required before starting the dev server.
+					</Info>
+				</Step>
+
+				<Step title="Start development server">
+					```bash
+					npm run dev
+					```
+				</Step>
+
+				<Step title="Access the application">
+					- Main app (dev): [http://localhost:5173](http://localhost:5173)
+					- Built app: [http://localhost:8090](http://localhost:8090)
+					- PocketBase Admin: [http://localhost:8090/_](http://localhost:8090/_)
+				</Step>
+			</Steps>
+
+			<Warning>
+				Local development is for testing only. All code and content is stored in the database, so you'll need a persistent server environment for production use.
+			</Warning>
+		</Accordion>
+
+		### Manual Deployment (VPS & Custom Infrastructure)
+
+		<Info>
+			**Using Railway or Fly.io?** You can skip this section - those platforms handle Docker deployment automatically.
+		</Info>
+
+		For VPS hosting (Hetzner, DigitalOcean, etc.) or custom infrastructure, deploy Pala as a Docker container using Docker Compose or by running Docker commands directly. See the [PocketBase production deployment guide](https://pocketbase.io/docs/going-to-production/) for additional information.
+
+		<Steps>
+			<Step title="Point your domain to the server">
+				Configure your DNS to point your domain name to the server where you'll host PalaCMS.
+			</Step>
+
+			<Step title="Prepare Docker deployment">
+				Use Docker Compose (recommended) or run Docker commands directly. Use `ghcr.io/palacms/palacms:latest` as the image.
+
+				**Required volume**: Add a volume for the path `/app/pb_data`. This is where all files and the database will be stored.
+
+				**Optional environment variables** (only take effect on first start):
+				- `PALA_APP_URL` - Sets base URL used for generating links in the backend (e.g., emails)
+				- `PALA_SUPERUSER_EMAIL` + `PALA_SUPERUSER_PASSWORD` - Creates initial superuser account
+				- `PALA_USER_EMAIL` + `PALA_USER_PASSWORD` - Creates initial user account
+
+				<CodeGroup>
+					```yaml:compose.yaml
+					services:
+					  palacms:
+					    image: ghcr.io/palacms/palacms:latest
+					    restart: always
+					    ports:
+					      - 8080:8080
+					    volumes:
+					      - palacms-data:/app/pb_data
+					    # Optional environment variables:
+					    # environment:
+					    #   - PALA_APP_URL=https://example.com
+					    #   - PALA_SUPERUSER_EMAIL=admin@example.com
+					    #   - PALA_SUPERUSER_PASSWORD=secure-password
+					    #   - PALA_USER_EMAIL=user@example.com
+					    #   - PALA_USER_PASSWORD=secure-password
+
+					volumes:
+					  palacms-data:
+					```
+
+					```bash:docker run
+					docker run -d \
+					  --name palacms \
+					  --restart always \
+					  -p 8080:8080 \
+					  -v palacms-data:/app/pb_data \
+					  ghcr.io/palacms/palacms:latest
+					```
+				</CodeGroup>
+			</Step>
+
+			<Step title="Complete setup">
+				Navigate to your domain name to complete setup. Setup only starts if a superuser was not created using environment variables in the previous step.
+			</Step>
+
+			<Step title="Configure PocketBase">
+				Configure PocketBase settings by navigating to `https://your-domain.com/_/` (replace with your domain).
+			</Step>
+
+			<Step title="Create your first site">
+				Create your first site by navigating to `https://your-domain.com/admin` (replace with your domain). Note that the site is created using the domain name used to access the CMS.
+			</Step>
+		</Steps>
+	</Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+	<Card title="Core Concepts" icon="lightbulb" href="/getting-started/core-concepts">
+		Learn the fundamental concepts behind Pala
+	</Card>
+	<Card title="Quickstart" icon="bolt" href="/getting-started/quickstart">
+		Build your first site in minutes
+	</Card>
+</CardGroup>

@@ -3,3 +3,727 @@ title: 'Your First Site'
 description: 'Create your first Pala site from scratch and understand the basic workflow.'
 ---
 
+This guide walks you through building a complete Pala site from scratch. You'll create multiple page types, build several blocks, and set up a site that's ready for content editors to use.
+
+<Info>
+If you're looking for a faster introduction, check out the [Quickstart](/getting-started/quickstart) guide first.
+</Info>
+
+## Overview
+
+By the end of this guide, you'll have:
+
+- A site with three page types (Homepage, Blog Post, About)
+- Five reusable blocks (Hero, Text, Image, Card Grid, Footer)
+- A working navigation system
+- Content ready for editors to manage
+
+## Prerequisites
+
+- Pala installed and running ([Installation guide](/getting-started/installation))
+- Basic familiarity with HTML, CSS, and JavaScript
+- Understanding of [core concepts](/getting-started/core-concepts)
+
+## Step 1: Create Your Site
+
+<Steps>
+<Step title="Initialize the site">
+  When you first access Pala, create a new site. Give it a descriptive name like "My First Site".
+  
+  <Info>
+  The site name is for internal organization. You can change it later in settings.
+  </Info>
+</Step>
+
+<Step title="Configure basic settings">
+  Navigate to Site Settings and configure:
+  
+  - **Site Name**: The name that appears in navigation and metadata
+  - **Domain**: Your site's domain (or subdomain for Cloud users)
+  - **Default Language**: Set to your primary language
+  
+  <Tip>
+  You can always update these settings later. For now, focus on getting the structure in place.
+  </Tip>
+</Step>
+</Steps>
+
+## Step 2: Build Your Component Library
+
+Before creating page types, let's build the blocks that will power your pages. We'll create five essential blocks.
+
+### Block 1: Hero
+
+The Hero block will be the first thing visitors see on your homepage.
+
+<Steps>
+<Step title="Create the Hero block">
+  Go to Component Library → Create Block. Name it "Hero".
+</Step>
+
+<Step title="Write the component">
+  ```svelte
+  <script>
+    export let headline = "Welcome";
+    export let subheadline = "Your compelling subheadline here";
+    export let cta_text = "Get Started";
+    export let cta_link = "/";
+    export let background_image = "";
+  </script>
+  
+  <section class="hero" style={background_image ? `background-image: url(${background_image})` : ''}>
+    <div class="hero-content">
+      <h1>{headline}</h1>
+      <p>{subheadline}</p>
+      <a href={cta_link} class="cta-button">{cta_text}</a>
+    </div>
+  </section>
+  
+  <style>
+    .hero {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+    
+    .hero-content {
+      max-width: 800px;
+    }
+    
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .hero p {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      opacity: 0.95;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      padding: 1rem 2.5rem;
+      background: white;
+      color: #667eea;
+      text-decoration: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero p {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+  ```
+</Step>
+
+<Step title="Add fields">
+  Add these content fields:
+  
+  - `headline` (Text) - Main headline
+  - `subheadline` (Text) - Supporting text
+  - `cta_text` (Text) - Button text
+  - `cta_link` (Text) - Button destination URL
+  - `background_image` (Image, optional) - Background image URL
+  
+  <Check>
+  The component is already set up to use these fields. Just add them in the field editor.
+  </Check>
+</Step>
+</Steps>
+
+<Check>
+Your Hero block is complete and saved to your component library. It's ready to use on any page type.
+</Check>
+
+### Block 2: Text
+
+A simple text block for content sections.
+
+<Steps>
+<Step title="Create the Text block">
+  Create a new block called "Text".
+</Step>
+
+<Step title="Write the component">
+  ```svelte
+  <script>
+    export let content = "";
+    export let alignment = "left";
+  </script>
+  
+  <section class="text-block" class:text-center={alignment === "center"} class:text-right={alignment === "right"}>
+    {@html content}
+  </section>
+  
+  <style>
+    .text-block {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      line-height: 1.8;
+    }
+    
+    .text-block :global(h2) {
+      font-size: 2rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .text-block :global(p) {
+      margin-bottom: 1.5rem;
+    }
+    
+    .text-block :global(ul), .text-block :global(ol) {
+      margin-bottom: 1.5rem;
+      padding-left: 2rem;
+    }
+    
+    .text-block :global(li) {
+      margin-bottom: 0.5rem;
+    }
+  </style>
+  ```
+</Step>
+
+<Step title="Add fields">
+  Add these fields:
+  
+  - `content` (Rich Text) - The main content
+  - `alignment` (Select) - Options: "left", "center", "right"
+</Step>
+</Steps>
+
+<Check>
+Your Text block is complete. It's perfect for articles, descriptions, and long-form content.
+</Check>
+
+### Block 3: Image
+
+A block for displaying images with optional captions.
+
+<Steps>
+<Step title="Create the Image block">
+  Create a new block called "Image".
+</Step>
+
+<Step title="Write the component">
+  ```svelte
+  <script>
+    export let image_url = "";
+    export let alt_text = "";
+    export let caption = "";
+    export let full_width = false;
+  </script>
+  
+  <figure class="image-block" class:full-width={full_width}>
+    <img src={image_url} alt={alt_text} />
+    {#if caption}
+      <figcaption>{caption}</figcaption>
+    {/if}
+  </figure>
+  
+  <style>
+    .image-block {
+      margin: 2rem auto;
+      max-width: 1000px;
+      padding: 0 2rem;
+    }
+    
+    .image-block.full-width {
+      max-width: 100%;
+      padding: 0;
+    }
+    
+    .image-block img {
+      width: 100%;
+      height: auto;
+      border-radius: 0.5rem;
+    }
+    
+    .image-block figcaption {
+      margin-top: 0.75rem;
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+  </style>
+  ```
+</Step>
+
+<Step title="Add fields">
+  Add these fields:
+  
+  - `image_url` (Image) - The image to display
+  - `alt_text` (Text) - Alt text for accessibility
+  - `caption` (Text, optional) - Image caption
+  - `full_width` (Boolean) - Whether to use full width
+</Step>
+</Steps>
+
+<Check>
+Your Image block is complete. It handles images with captions and full-width options.
+</Check>
+
+### Block 4: Card Grid
+
+A flexible grid for displaying cards (useful for features, team members, etc.).
+
+<Steps>
+<Step title="Create the Card Grid block">
+  Create a new block called "Card Grid".
+</Step>
+
+<Step title="Write the component">
+  ```svelte
+  <script>
+    export let cards = [];
+    export let columns = 3;
+  </script>
+  
+  <section class="card-grid" style="--columns: {columns}">
+    {#each cards as card}
+      <div class="card">
+        {#if card.image}
+          <img src={card.image} alt={card.title} />
+        {/if}
+        <div class="card-content">
+          <h3>{card.title}</h3>
+          {#if card.description}
+            <p>{card.description}</p>
+          {/if}
+          {#if card.link}
+            <a href={card.link} class="card-link">Learn More →</a>
+          {/if}
+        </div>
+      </div>
+    {/each}
+  </section>
+  
+  <style>
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--columns), 1fr);
+      gap: 2rem;
+      padding: 3rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    }
+    
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .card-content {
+      padding: 1.5rem;
+    }
+    
+    .card-content h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.5rem;
+    }
+    
+    .card-content p {
+      color: #666;
+      margin-bottom: 1rem;
+    }
+    
+    .card-link {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  ```
+</Step>
+
+<Step title="Add fields">
+  Add these fields:
+  
+  - `cards` (Repeater) - Array of card objects with:
+    - `title` (Text)
+    - `description` (Text, optional)
+    - `image` (Image, optional)
+    - `link` (Text, optional)
+  - `columns` (Number) - Number of columns (default: 3)
+</Step>
+</Steps>
+
+<Check>
+Your Card Grid block is complete. It's perfect for displaying features, team members, or any repeating content in a grid layout.
+</Check>
+
+### Block 5: Footer
+
+A site-wide footer block.
+
+<Steps>
+<Step title="Create the Footer block">
+  Create a new block called "Footer".
+</Step>
+
+<Step title="Write the component">
+  ```svelte
+  <script>
+    export let copyright_text = "© 2024 My Site";
+    export let links = [];
+  </script>
+  
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-links">
+        {#each links as link}
+          <a href={link.url}>{link.label}</a>
+        {/each}
+      </div>
+      <p class="copyright">{copyright_text}</p>
+    </div>
+  </footer>
+  
+  <style>
+    .footer {
+      background: #1a1a1a;
+      color: white;
+      padding: 3rem 2rem;
+      margin-top: 4rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    
+    .footer-links a:hover {
+      opacity: 0.7;
+    }
+    
+    .copyright {
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+  ```
+</Step>
+
+<Step title="Add fields">
+  Add these fields:
+  
+  - `copyright_text` (Text) - Copyright notice
+  - `links` (Repeater) - Footer links with:
+    - `label` (Text)
+    - `url` (Text)
+</Step>
+</Steps>
+
+<Check>
+Your Footer block is complete. It's ready to be used as a site-wide footer.
+</Check>
+
+<Check>
+You now have five reusable blocks in your component library. These can be used across all your sites!
+</Check>
+
+## Step 3: Define Page Types
+
+Now let's create three page types that use these blocks.
+
+### Page Type 1: Homepage
+
+<Steps>
+<Step title="Create Homepage page type">
+  Go to Page Types → Create Page Type. Name it "Homepage" with slug "homepage".
+</Step>
+
+<Step title="Configure available blocks">
+  Add these blocks as available:
+  - Hero
+  - Text
+  - Image
+  - Card Grid
+  
+  <Info>
+  The Footer will be added site-wide, so we don't need it in individual page types.
+  </Info>
+</Step>
+
+<Step title="Add page fields">
+  Add these page-level fields:
+  - `meta_title` (Text) - SEO title
+  - `meta_description` (Text) - SEO description
+</Step>
+</Steps>
+
+### Page Type 2: Blog Post
+
+<Steps>
+<Step title="Create Blog Post page type">
+  Create a new page type called "Blog Post" with slug "blog".
+</Step>
+
+<Step title="Configure available blocks">
+  Add these blocks:
+  - Text
+  - Image
+  
+  <Tip>
+  Blog posts typically have simpler layouts. You can always add more blocks later.
+  </Tip>
+</Step>
+
+<Step title="Add page fields">
+  Add these fields:
+  - `title` (Text, required) - Post title
+  - `author` (Text) - Author name
+  - `publish_date` (Date) - Publication date
+  - `featured_image` (Image) - Featured image
+  - `excerpt` (Text) - Short description
+  - `meta_title` (Text) - SEO title
+  - `meta_description` (Text) - SEO description
+</Step>
+</Steps>
+
+### Page Type 3: About
+
+<Steps>
+<Step title="Create About page type">
+  Create a new page type called "About" with slug "about".
+</Step>
+
+<Step title="Configure available blocks">
+  Add these blocks:
+  - Hero
+  - Text
+  - Image
+  - Card Grid
+</Step>
+
+<Step title="Add page fields">
+  Add these fields:
+  - `meta_title` (Text) - SEO title
+  - `meta_description` (Text) - SEO description
+</Step>
+</Steps>
+
+## Step 4: Create Pages
+
+Now let's create actual pages using these page types.
+
+### Create the Homepage
+
+<Steps>
+<Step title="Create homepage page">
+  Go to Pages → Create Page. Select "Homepage" as the page type.
+</Step>
+
+<Step title="Add blocks">
+  Add blocks in this order:
+  1. **Hero** - Add compelling headline and CTA
+  2. **Text** - Add an introduction section
+  3. **Card Grid** - Add 3 feature cards
+  4. **Text** - Add a closing section
+  
+  <Tip>
+  You can reorder blocks by dragging them in the editor.
+  </Tip>
+</Step>
+
+<Step title="Fill in content">
+  Edit each block with your content:
+  
+  - **Hero**: Welcome message and primary CTA
+  - **Text**: Introduction to your site
+  - **Card Grid**: Three feature highlights
+  - **Text**: Call to action or closing message
+</Step>
+
+<Step title="Set page metadata">
+  Fill in the page fields:
+  - Meta title: "Home - My Site"
+  - Meta description: "Welcome to my site built with Pala"
+</Step>
+</Steps>
+
+### Create a Blog Post
+
+<Steps>
+<Step title="Create blog post">
+  Create a new page with "Blog Post" page type.
+</Step>
+
+<Step title="Fill page fields">
+  Set:
+  - Title: "Getting Started with Pala"
+  - Author: Your name
+  - Publish date: Today's date
+  - Excerpt: A short description
+</Step>
+
+<Step title="Add content blocks">
+  Add:
+  1. **Text** block with your blog post content
+  2. **Image** block for illustrations
+  
+  <Info>
+  You can add multiple Text and Image blocks to create rich blog post layouts.
+  </Info>
+</Step>
+</Steps>
+
+### Create the About Page
+
+<Steps>
+<Step title="Create about page">
+  Create a new page with "About" page type.
+</Step>
+
+<Step title="Build the page">
+  Add:
+  1. **Hero** - "About Us" headline
+  2. **Text** - Your story
+  3. **Card Grid** - Team members or values
+  4. **Image** - Team photo or office image
+</Step>
+</Steps>
+
+## Step 5: Configure Navigation
+
+Set up your site's navigation menu:
+
+<Steps>
+<Step title="Open navigation settings">
+  Go to Site Settings → Navigation.
+</Step>
+
+<Step title="Add menu items">
+  Add links to:
+  - Home (links to your homepage)
+  - About (links to your about page)
+  - Blog (links to blog listing, if you create one)
+  
+  <Tip>
+  Navigation is managed at the site level, so it appears consistently across all pages.
+  </Tip>
+</Step>
+</Steps>
+
+## Step 6: Set Up Site-Wide Footer
+
+<Steps>
+<Step title="Configure footer">
+  Go to Site Settings → Footer.
+</Step>
+
+<Step title="Add footer content">
+  Use the Footer block settings to add:
+  - Copyright text
+  - Footer links (Privacy Policy, Terms, Contact, etc.)
+</Step>
+</Steps>
+
+## Step 7: Publish Your Site
+
+<Steps>
+<Step title="Review all pages">
+  Use the preview feature to check each page before publishing.
+</Step>
+
+<Step title="Publish pages">
+  Publish your Homepage, About page, and Blog Post.
+  
+  <Check>
+  Your site is now live! Visit your domain to see it in action.
+  </Check>
+</Step>
+</Steps>
+
+## What You've Built
+
+You now have:
+
+- ✅ A complete site structure with three page types
+- ✅ Five reusable blocks in your component library
+- ✅ Multiple published pages with real content
+- ✅ Navigation and footer configured
+- ✅ A site ready for content editors
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Writing Components" icon="code" href="/building-sites/writing-components">
+  Learn advanced techniques for building reusable components.
+</Card>
+
+<Card title="Working with Fields" icon="pen-to-square" href="/building-sites/working-with-fields">
+  Explore all field types and how to use them effectively.
+</Card>
+
+<Card title="Defining Page Types" icon="layer-group" href="/building-sites/defining-page-types">
+  Master page type configuration for complex content structures.
+</Card>
+
+<Card title="Using the Editor" icon="pen-to-square" href="/content-management/using-the-editor">
+  Learn how content editors use Pala to manage pages.
+</Card>
+</CardGroup>
+
+<Tip>
+All the blocks you created are saved in your component library. You can reuse them in future sites, saving time on every new project.
+</Tip>

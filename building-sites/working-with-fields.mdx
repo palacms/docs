@@ -3,3 +3,519 @@ title: 'Working with Fields'
 description: 'Add content fields to blocks and pages to make them editable.'
 ---
 
+Fields are what transform your Svelte components into editable blocks. You write the component code, then attach fields to make specific parts editable by content editors. This guide shows you how to add and configure fields effectively.
+
+## Understanding Fields
+
+Fields bridge the gap between code and content:
+
+- **Component code** defines structure and styling
+- **Fields** define what content editors can edit
+- **Together** they create blocks that are both powerful and editable
+
+<Info>
+Fields can be added to both blocks (for component-level editing) and page types (for page-level metadata). The process is the same for both.
+</Info>
+
+## Adding Fields to a Block
+
+<Steps>
+<Step title="Create or open your component">
+  In the Component Library, create a new block or open an existing one.
+</Step>
+
+<Step title="Write your component code">
+  Build your Svelte component with props that will become fields:
+  
+  ```svelte
+  <script>
+    export let headline = "Default Headline";
+    export let description = "";
+    export let image_url = "";
+  </script>
+  
+  <section class="hero">
+    <h1>{headline}</h1>
+    <p>{description}</p>
+    {#if image_url}
+      <img src={image_url} alt={headline} />
+    {/if}
+  </section>
+  ```
+  
+  <Tip>
+  Always provide default values for props. This ensures your component works even if fields aren't filled in.
+  </Tip>
+</Step>
+
+<Step title="Open the field editor">
+  Click "Add Field" or the fields panel in the component editor.
+</Step>
+
+<Step title="Create your first field">
+  Configure the field:
+  
+  - **Field name**: Must match your prop name (e.g., `headline`)
+  - **Field type**: Choose the appropriate type (e.g., Text, Rich Text, Image)
+  - **Label**: Display name for editors (e.g., "Headline")
+  - **Default value**: Optional pre-filled value
+  
+  <Check>
+  The field name must exactly match the prop name in your component code.
+  </Check>
+</Step>
+
+<Step title="Add more fields">
+  Repeat for each prop you want to make editable:
+  
+  - `description` → Rich Text field
+  - `image_url` → Image field
+  
+  <Info>
+  You don't need to create fields for every prop. Only create fields for content you want editors to control.
+  </Info>
+</Step>
+
+<Step title="Save your block">
+  Click "Save Block" to save your component with its fields.
+</Step>
+</Steps>
+
+## Field Naming
+
+Field names must match component props exactly:
+
+```svelte
+<script>
+  // Component prop
+  export let cta_text = "Click me";
+</script>
+```
+
+**Field configuration:**
+- **Field name**: `cta_text` (must match exactly)
+- **Label**: "CTA Text" (can be different, this is what editors see)
+
+<Warning>
+Field names are case-sensitive and must match prop names exactly. `cta_text` and `ctaText` are different.
+</Warning>
+
+## Common Field Patterns
+
+### Hero Block
+
+A typical hero block needs:
+
+```svelte
+<script>
+  export let headline = "";
+  export let subheadline = "";
+  export let cta_text = "";
+  export let cta_link = "/";
+  export let background_image = "";
+</script>
+```
+
+**Fields to add:**
+- `headline` (Text) - Main headline
+- `subheadline` (Text) - Supporting text
+- `cta_text` (Text) - Button text
+- `cta_link` (Link) - Button destination
+- `background_image` (Image, optional) - Background image
+
+### Text Block
+
+A simple text block:
+
+```svelte
+<script>
+  export let content = "";
+  export let alignment = "left";
+</script>
+```
+
+**Fields to add:**
+- `content` (Rich Text) - The main content
+- `alignment` (Select) - Options: "left", "center", "right"
+
+### Image Block
+
+An image with caption:
+
+```svelte
+<script>
+  export let image_url = "";
+  export let alt_text = "";
+  export let caption = "";
+</script>
+```
+
+**Fields to add:**
+- `image_url` (Image) - The image
+- `alt_text` (Text) - Alt text for accessibility
+- `caption` (Text, optional) - Image caption
+
+### Card Grid Block
+
+A grid of cards using a repeater:
+
+```svelte
+<script>
+  export let cards = [];
+  export let columns = 3;
+</script>
+```
+
+**Fields to add:**
+- `cards` (Repeater) with nested fields:
+  - `title` (Text)
+  - `description` (Text)
+  - `image` (Image, optional)
+  - `link` (Link, optional)
+- `columns` (Number) - Number of columns
+
+## Field Configuration
+
+### Required Fields
+
+Mark fields as required when they're essential:
+
+<Example>
+A Hero block's `headline` field should be required—a hero without a headline doesn't make sense.
+</Example>
+
+**When to require:**
+- Essential content (headlines, titles)
+- Fields that affect functionality
+- Fields needed for proper display
+
+**When not to require:**
+- Optional enhancements (images, captions)
+- Fields with sensible defaults
+- Decorative elements
+
+### Default Values
+
+Set default values to make components work out of the box:
+
+```svelte
+<script>
+  // Good: Has sensible defaults
+  export let headline = "Welcome";
+  export let show_cta = true;
+  export let columns = 3;
+</script>
+```
+
+**Field defaults:**
+- Match the default in your component code
+- Provide helpful starting points
+- Make components functional immediately
+
+### Help Text
+
+Add help text to guide editors:
+
+<Example>
+**Field**: `background_image`
+**Help text**: "Optional background image. Recommended size: 1920x1080px. Will be used as a fallback if no image is provided."
+</Example>
+
+**Good help text:**
+- Explains what the field is for
+- Provides guidance on content
+- Mentions any requirements (size, format, etc.)
+
+### Placeholders
+
+Use placeholders to show example content:
+
+- **Headline field**: "Enter your headline here"
+- **Description field**: "Describe your product or service"
+- **Link field**: "/about" or "https://example.com"
+
+<Tip>
+Placeholders help editors understand what to enter, especially for fields like URLs or slugs.
+</Tip>
+
+## Advanced Field Patterns
+
+<AccordionGroup>
+<Accordion title="Conditional Fields">
+### Conditional Fields
+
+Some fields should only appear when others have values:
+
+<Example>
+A "Video" block might have:
+- `video_type` (Select): "Upload" or "Embed"
+- `video_file` (Video): Show only when `video_type` is "Upload"
+- `video_url` (Text): Show only when `video_type` is "Embed"
+</Example>
+
+**Setting up conditionals:**
+1. Create the control field (e.g., `video_type`)
+2. Configure dependent fields to show/hide based on the control field
+3. Test with different values
+</Accordion>
+
+<Accordion title="Repeater Fields">
+### Repeater Fields
+
+Repeaters let editors add multiple items:
+
+<Steps>
+<Step title="Create the repeater field">
+  Add a Repeater field (e.g., `features`).
+</Step>
+
+<Step title="Add nested fields">
+  Inside the repeater, add fields for each item:
+  - `title` (Text)
+  - `description` (Text)
+  - `icon` (Image, optional)
+</Step>
+
+<Step title="Use in component">
+  Your component receives an array:
+  
+  ```svelte
+  <script>
+    export let features = [];
+  </script>
+  
+  {#each features as feature}
+    <div class="feature">
+      <h3>{feature.title}</h3>
+      <p>{feature.description}</p>
+    </div>
+  {/each}
+  ```
+</Step>
+</Steps>
+</Accordion>
+
+<Accordion title="Group Fields">
+### Group Fields
+
+Groups organize related fields:
+
+<Steps>
+<Step title="Create a group field">
+  Add a Group field (e.g., `author`).
+</Step>
+
+<Step title="Add fields to the group">
+  Inside the group, add related fields:
+  - `name` (Text)
+  - `email` (Email)
+  - `bio` (Textarea)
+</Step>
+
+<Step title="Use in component">
+  Your component receives an object:
+  
+  ```svelte
+  <script>
+    export let author = {
+      name: "",
+      email: "",
+      bio: ""
+    };
+  </script>
+  
+  <div class="author">
+    <h3>{author.name}</h3>
+    <p>{author.bio}</p>
+  </div>
+  ```
+</Step>
+</Steps>
+</Accordion>
+</AccordionGroup>
+
+## Field Validation
+
+### Text Validation
+
+Add validation rules to text fields:
+
+- **Min length**: Minimum character count
+- **Max length**: Maximum character count
+- **Pattern**: Regex pattern for format validation
+
+<Example>
+An email field might use pattern: `^[^\s@]+@[^\s@]+\.[^\s@]+$`
+</Example>
+
+### Number Validation
+
+For number fields:
+
+- **Min value**: Minimum allowed number
+- **Max value**: Maximum allowed number
+- **Step**: Increment/decrement step
+
+<Example>
+A "Price" field might have:
+- Min: 0
+- Max: 10000
+- Step: 0.01 (for cents)
+</Example>
+
+### File Validation
+
+For image and file fields:
+
+- **Allowed formats**: File extensions (jpg, png, pdf, etc.)
+- **Max file size**: Maximum upload size in MB
+- **Dimensions**: Min/max width and height (for images)
+
+## Testing Fields
+
+### Test with Empty Values
+
+Always test your components with empty fields:
+
+```svelte
+<script>
+  export let headline = ""; // Test with empty
+  export let image_url = ""; // Test without image
+</script>
+
+{#if headline}
+  <h1>{headline}</h1>
+{/if}
+
+{#if image_url}
+  <img src={image_url} />
+{/if}
+```
+
+### Test with Default Values
+
+Verify defaults work:
+
+1. Create a page with your block
+2. Don't fill in any fields
+3. Check that the component displays correctly with defaults
+
+### Test Edge Cases
+
+Try:
+- Very long text
+- Special characters
+- Empty arrays (for repeaters)
+- Missing nested fields (for groups)
+
+## Best Practices
+
+### 1. Start Simple
+
+Begin with essential fields, add more as needed:
+
+```yaml
+Simple Hero:
+  Fields: headline, subheadline, cta_text
+
+Enhanced Hero:
+  Fields: headline, subheadline, cta_text, background_image, overlay_color
+```
+
+### 2. Use Descriptive Labels
+
+Labels are what editors see:
+
+- ✅ "Featured Image"
+- ✅ "Publication Date"
+- ✅ "Author Name"
+- ❌ "Field 1"
+- ❌ "Data"
+
+### 3. Provide Helpful Defaults
+
+Defaults make components work immediately:
+
+```svelte
+// Good defaults
+export let columns = 3;
+export let show_title = true;
+export let alignment = "left";
+```
+
+### 4. Group Related Fields
+
+Use Groups or organize fields logically:
+
+- **Content fields**: headline, description, content
+- **Media fields**: image, video, background
+- **Settings fields**: alignment, columns, variant
+
+### 5. Validate Input
+
+Add validation to prevent errors:
+
+- Required fields for essential content
+- Format validation for emails, URLs
+- Size limits for files and text
+
+## Common Mistakes
+
+### Mismatched Names
+
+Field names must match prop names exactly:
+
+```svelte
+// Component
+export let ctaText = "";
+
+// Field name must be: ctaText (not cta_text)
+```
+
+### Missing Defaults
+
+Always provide defaults:
+
+```svelte
+// Bad: No default
+export let headline;
+
+// Good: Has default
+export let headline = "";
+```
+
+### Over-Complicating
+
+Start simple, add complexity later:
+
+```yaml
+# Start here
+Fields: title, description
+
+# Add later if needed
+Fields: title, description, image, link, category, tags, featured
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Field Types Reference" icon="book" href="/reference/field-types">
+  Complete reference of all available field types.
+</Card>
+
+<Card title="Writing Components" icon="code" href="/building-sites/writing-components">
+  Learn how to write components that work well with fields.
+</Card>
+
+<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
+  See fields in action with a complete site example.
+</Card>
+
+<Card title="Defining Page Types" icon="layer-group" href="/building-sites/defining-page-types">
+  Add page-level fields to page types.
+</Card>
+</CardGroup>
+
+<Tip>
+The best fields are the ones editors actually use. Start with essential fields, then add more based on feedback from content editors.
+</Tip>
