@@ -6,7 +6,7 @@ description: 'Deploy Pala to production on Railway, VPS, or custom infrastructur
 This guide covers deploying Pala to production. Choose the deployment method that matches your needs and technical expertise.
 
 <Warning>
-**Persistent Storage Required**: Pala stores all code, content, and data in a SQLite database that requires persistent disk storage. It will NOT work on serverless platforms like Vercel, Netlify, or Cloudflare Pages.
+**Persistent Storage Required**: Pala stores all data in a SQLite database and needs persistent disk storage to function. Traditional serverless platforms (Vercel, Netlify, Cloudflare Pages) have ephemeral file systems and won't work.
 </Warning>
 
 ## Quick Deploy: Railway
