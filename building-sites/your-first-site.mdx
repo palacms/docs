@@ -63,14 +63,6 @@ The Hero block will be the first thing visitors see on your homepage.
 
 <Step title="Write the component">
   ```svelte
-  <script>
-    export let headline = "Welcome";
-    export let subheadline = "Your compelling subheadline here";
-    export let cta_text = "Get Started";
-    export let cta_link = "/";
-    export let background_image = "";
-  </script>
-  
   <section class="hero" style={background_image ? `background-image: url(${background_image})` : ''}>
     <div class="hero-content">
       <h1>{headline}</h1>
@@ -78,7 +70,7 @@ The Hero block will be the first thing visitors see on your homepage.
       <a href={cta_link} class="cta-button">{cta_text}</a>
     </div>
   </section>
-  
+
   <style>
     .hero {
       min-height: 60vh;
@@ -168,15 +160,10 @@ A simple text block for content sections.
 
 <Step title="Write the component">
   ```svelte
-  <script>
-    export let content = "";
-    export let alignment = "left";
-  </script>
-  
   <section class="text-block" class:text-center={alignment === "center"} class:text-right={alignment === "right"}>
     {@html content}
   </section>
-  
+
   <style>
     .text-block {
       max-width: 800px;
@@ -230,20 +217,13 @@ A block for displaying images with optional captions.
 
 <Step title="Write the component">
   ```svelte
-  <script>
-    export let image_url = "";
-    export let alt_text = "";
-    export let caption = "";
-    export let full_width = false;
-  </script>
-  
   <figure class="image-block" class:full-width={full_width}>
     <img src={image_url} alt={alt_text} />
     {#if caption}
       <figcaption>{caption}</figcaption>
     {/if}
   </figure>
-  
+
   <style>
     .image-block {
       margin: 2rem auto;
@@ -298,11 +278,6 @@ A flexible grid for displaying cards (useful for features, team members, etc.).
 
 <Step title="Write the component">
   ```svelte
-  <script>
-    export let cards = [];
-    export let columns = 3;
-  </script>
-  
   <section class="card-grid" style="--columns: {columns}">
     {#each cards as card}
       <div class="card">
@@ -321,7 +296,7 @@ A flexible grid for displaying cards (useful for features, team members, etc.).
       </div>
     {/each}
   </section>
-  
+
   <style>
     .card-grid {
       display: grid;
@@ -407,11 +382,6 @@ A site-wide footer block.
 
 <Step title="Write the component">
   ```svelte
-  <script>
-    export let copyright_text = "© 2024 My Site";
-    export let links = [];
-  </script>
-  
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-links">
@@ -422,7 +392,7 @@ A site-wide footer block.
       <p class="copyright">{copyright_text}</p>
     </div>
   </footer>
-  
+
   <style>
     .footer {
       background: #1a1a1a;

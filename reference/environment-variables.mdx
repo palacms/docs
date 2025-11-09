@@ -1,0 +1,234 @@
+---
+title: 'Environment Variables'
+description: 'Configure Pala using environment variables for deployment.'
+---
+
+Environment variables let you configure Pala for different deployment environments. These are particularly useful for Docker deployments and automated setup.
+
+## Initial Setup Variables
+
+These variables only take effect on **first startup** when initializing a new instance:
+
+### `PALA_SUPERUSER_EMAIL`
+
+Creates an initial superuser account (admin) with full access.
+
+- **Type**: String (email address)
+- **Required**: No
+- **Default**: None
+- **When to use**: Automated deployments, skipping manual setup
+
+**Example:**
+```bash
+PALA_SUPERUSER_EMAIL=admin@example.com
+```
+
+### `PALA_SUPERUSER_PASSWORD`
+
+Password for the initial superuser account.
+
+- **Type**: String
+- **Required**: Only if `PALA_SUPERUSER_EMAIL` is set
+- **Default**: None
+- **Minimum**: 8 characters
+
+**Example:**
+```bash
+PALA_SUPERUSER_PASSWORD=secure-password-123
+```
+
+<Warning>
+If both `PALA_SUPERUSER_EMAIL` and `PALA_SUPERUSER_PASSWORD` are set, the setup screen will be skipped and you'll go straight to the sign-in page.
+</Warning>
+
+### `PALA_USER_EMAIL`
+
+Creates an initial regular user account.
+
+- **Type**: String (email address)
+- **Required**: No
+- **Default**: None
+- **When to use**: Pre-populate with a content editor account
+
+**Example:**
+```bash
+PALA_USER_EMAIL=editor@example.com
+```
+
+### `PALA_USER_PASSWORD`
+
+Password for the initial regular user account.
+
+- **Type**: String
+- **Required**: Only if `PALA_USER_EMAIL` is set
+- **Default**: None
+- **Minimum**: 8 characters
+
+**Example:**
+```bash
+PALA_USER_PASSWORD=editor-password-123
+```
+
+### `PALA_APP_URL`
+
+Sets the base URL for the application. Used for generating links in emails and backend processes.
+
+- **Type**: String (URL)
+- **Required**: No
+- **Default**: Auto-detected from request
+- **When to use**: Email notifications, API callbacks
+
+**Example:**
+```bash
+PALA_APP_URL=https://cms.example.com
+```
+
+## Common Configurations
+
+### Development Setup
+
+```bash
+# No environment variables needed
+# Just run: docker-compose up
+```
+
+The setup screen will guide you through creating your first account.
+
+### Production with Manual Setup
+
+```bash
+PALA_APP_URL=https://cms.example.com
+```
+
+Access the setup screen to create your admin account manually.
+
+### Production with Automated Setup
+
+```bash
+PALA_APP_URL=https://cms.example.com
+PALA_SUPERUSER_EMAIL=admin@example.com
+PALA_SUPERUSER_PASSWORD=strong-random-password
+PALA_USER_EMAIL=editor@example.com
+PALA_USER_PASSWORD=another-strong-password
+```
+
+No setup screen - go straight to sign-in.
+
+## Docker Compose Example
+
+```yaml
+services:
+  palacms:
+    image: ghcr.io/palacms/palacms:latest
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - palacms-data:/app/pb_data
+    environment:
+      - PALA_APP_URL=https://cms.example.com
+      - PALA_SUPERUSER_EMAIL=admin@example.com
+      - PALA_SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
+      - PALA_USER_EMAIL=editor@example.com
+      - PALA_USER_PASSWORD=${USER_PASSWORD}
+
+volumes:
+  palacms-data:
+```
+
+<Tip>
+Use `.env` files or secrets management to avoid hardcoding passwords in docker-compose.yml
+</Tip>
+
+## Railway Template
+
+Railway automatically handles environment variables through their UI:
+
+1. Deploy using the Railway button
+2. Set environment variables in Railway dashboard
+3. Railway restarts the service automatically
+
+```bash
+# Railway environment variables
+PALA_APP_URL=${RAILWAY_STATIC_URL}
+PALA_SUPERUSER_EMAIL=admin@example.com
+PALA_SUPERUSER_PASSWORD=<secret>
+```
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Never commit passwords to version control">
+    Use environment variables, secrets management, or encrypted files. Never hardcode passwords in `docker-compose.yml` or other config files.
+  </Accordion>
+
+  <Accordion title="Use strong passwords">
+    Generate random passwords with at least 16 characters:
+    ```bash
+    # Generate a random password
+    openssl rand -base64 24
+    ```
+  </Accordion>
+
+  <Accordion title="Rotate passwords regularly">
+    Change initial passwords after setup, especially for production environments.
+  </Accordion>
+
+  <Accordion title="Use secrets management">
+    For production deployments, use:
+    - **Railway**: Built-in secrets
+    - **Docker Swarm**: Docker secrets
+    - **Kubernetes**: Kubernetes secrets
+    - **Vault**: HashiCorp Vault
+  </Accordion>
+
+  <Accordion title="Limit who has access to environment variables">
+    Environment variables contain sensitive information. Restrict access to deployment configurations.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Setup screen appears even with PALA_SUPERUSER_EMAIL set
+
+**Cause**: Environment variables not loaded, or database already initialized
+
+**Solution**:
+1. Check environment variables are correctly set
+2. Verify Docker/Railway configuration
+3. If database exists, delete `/app/pb_data` volume and restart
+
+### Can't sign in after setting environment variables
+
+**Cause**: Wrong password, or user wasn't created
+
+**Solution**:
+1. Check logs for errors during startup
+2. Verify password meets minimum requirements (8 characters)
+3. Check that both EMAIL and PASSWORD variables are set
+
+### Variables not taking effect
+
+**Cause**: Variables only work on first startup
+
+**Solution**:
+Environment variables for user creation only work when the database is first initialized. To reset:
+
+1. Stop the container
+2. Delete the volume: `docker volume rm palacms-data`
+3. Restart with new environment variables
+
+<Warning>
+Deleting the volume deletes all your data. Only do this for fresh installs or if you have backups.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deployment Guide" icon="rocket" href="/reference/deployment">
+    Learn how to deploy Pala to production
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/reference/troubleshooting">
+    Solve common deployment issues
+  </Card>
+</CardGroup>

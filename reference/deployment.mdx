@@ -1,0 +1,472 @@
+---
+title: 'Deployment Guide'
+description: 'Deploy Pala to production on Railway, VPS, or custom infrastructure.'
+---
+
+This guide covers deploying Pala to production. Choose the deployment method that matches your needs and technical expertise.
+
+<Warning>
+**Persistent Storage Required**: Pala stores all code, content, and data in a SQLite database that requires persistent disk storage. It will NOT work on serverless platforms like Vercel, Netlify, or Cloudflare Pages.
+</Warning>
+
+## Quick Deploy: Railway
+
+The fastest way to deploy Pala to production.
+
+### Prerequisites
+
+- Railway account (free to start)
+- Domain name (optional, Railway provides a free subdomain)
+
+### Deployment Steps
+
+<Steps>
+  <Step title="Click deploy button">
+    [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/palacms?referralCode=RCPU7k)
+  </Step>
+
+  <Step title="Configure environment (optional)">
+    Set environment variables if you want automated setup:
+    - `PALA_SUPERUSER_EMAIL`
+    - `PALA_SUPERUSER_PASSWORD`
+    - `PALA_APP_URL` (optional, auto-detected)
+  </Step>
+
+  <Step title="Wait for deployment">
+    Railway will:
+    - Pull the Docker image
+    - Create a persistent volume
+    - Deploy the container
+    - Generate a URL
+  </Step>
+
+  <Step title="Access your instance">
+    Click the generated URL to access Pala. If you didn't set environment variables, you'll see the setup screen.
+  </Step>
+
+  <Step title="Configure custom domain (optional)">
+    Railway Settings → Domains → Add custom domain
+  </Step>
+</Steps>
+
+**Cost**: From $5/month (includes persistent volume)
+
+<Tip>
+Railway automatically handles SSL certificates, deployments, and scaling. Perfect for production use.
+</Tip>
+
+## VPS Deployment
+
+Deploy to any VPS for full control over your infrastructure.
+
+### Prerequisites
+
+- VPS with Docker installed (Hetzner, DigitalOcean, etc.)
+- SSH access to your server
+- Domain name pointed to your server IP
+- Basic command line knowledge
+
+### Option 1: Docker Compose (Recommended)
+
+<Steps>
+  <Step title="SSH into your server">
+    ```bash
+    ssh user@your-server-ip
+    ```
+  </Step>
+
+  <Step title="Create project directory">
+    ```bash
+    mkdir palacms
+    cd palacms
+    ```
+  </Step>
+
+  <Step title="Create docker-compose.yml">
+    ```yaml
+    services:
+      palacms:
+        image: ghcr.io/palacms/palacms:latest
+        restart: always
+        ports:
+          - "8080:8080"
+        volumes:
+          - palacms-data:/app/pb_data
+        environment:
+          - PALA_APP_URL=https://your-domain.com
+          # Optional: automated setup
+          # - PALA_SUPERUSER_EMAIL=admin@example.com
+          # - PALA_SUPERUSER_PASSWORD=<secret>
+
+    volumes:
+      palacms-data:
+    ```
+  </Step>
+
+  <Step title="Start the container">
+    ```bash
+    docker-compose up -d
+    ```
+  </Step>
+
+  <Step title="Verify it's running">
+    ```bash
+    docker-compose logs -f
+    ```
+    You should see logs indicating the server started on port 8080.
+  </Step>
+</Steps>
+
+### Option 2: Docker Run
+
+For simpler setups without compose:
+
+```bash
+docker run -d \
+  --name palacms \
+  --restart always \
+  -p 8080:8080 \
+  -v palacms-data:/app/pb_data \
+  -e PALA_APP_URL=https://your-domain.com \
+  ghcr.io/palacms/palacms:latest
+```
+
+### Configure Reverse Proxy
+
+Pala runs on port 8080. Use a reverse proxy for SSL and domain routing:
+
+<Tabs>
+  <Tab title="Nginx">
+    ```nginx
+    server {
+        listen 80;
+        server_name your-domain.com;
+        return 301 https://$server_name$request_uri;
+    }
+
+    server {
+        listen 443 ssl http2;
+        server_name your-domain.com;
+
+        ssl_certificate /path/to/cert.pem;
+        ssl_certificate_key /path/to/key.pem;
+
+        location / {
+            proxy_pass http://localhost:8080;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    ```
+
+    Get SSL certificates with [Certbot](https://certbot.eff.org/):
+    ```bash
+    sudo certbot --nginx -d your-domain.com
+    ```
+  </Tab>
+
+  <Tab title="Caddy">
+    Caddy automatically handles SSL certificates:
+
+    ```caddy
+    your-domain.com {
+        reverse_proxy localhost:8080
+    }
+    ```
+
+    Start Caddy:
+    ```bash
+    caddy run --config Caddyfile
+    ```
+  </Tab>
+
+  <Tab title="Traefik">
+    Add labels to docker-compose.yml:
+
+    ```yaml
+    services:
+      palacms:
+        image: ghcr.io/palacms/palacms:latest
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.palacms.rule=Host(`your-domain.com`)"
+          - "traefik.http.routers.palacms.entrypoints=websecure"
+          - "traefik.http.routers.palacms.tls.certresolver=letsencrypt"
+          - "traefik.http.services.palacms.loadbalancer.server.port=8080"
+    ```
+  </Tab>
+</Tabs>
+
+## Platform-Specific Guides
+
+### Hetzner Cloud
+
+1. Create a VPS (CX22 recommended: €4/month)
+2. Install Docker:
+   ```bash
+   curl -fsSL https://get.docker.com -o get-docker.sh
+   sudo sh get-docker.sh
+   ```
+3. Follow VPS deployment steps above
+4. Configure firewall to allow ports 80, 443, and 22
+
+### DigitalOcean
+
+1. Create a Droplet ($6/month minimum)
+2. Choose "Docker" from one-click apps (or install manually)
+3. Follow VPS deployment steps above
+4. Use DigitalOcean's cloud firewalls for security
+
+### Fly.io
+
+Fly.io offers a free tier with persistent volumes:
+
+<Steps>
+  <Step title="Install Fly CLI">
+    ```bash
+    curl -L https://fly.io/install.sh | sh
+    ```
+  </Step>
+
+  <Step title="Login to Fly">
+    ```bash
+    fly auth login
+    ```
+  </Step>
+
+  <Step title="Create fly.toml">
+    ```toml
+    app = "your-app-name"
+    primary_region = "sjc"
+
+    [build]
+      image = "ghcr.io/palacms/palacms:latest"
+
+    [http_service]
+      internal_port = 8080
+      force_https = true
+
+    [[mounts]]
+      source = "palacms_data"
+      destination = "/app/pb_data"
+
+    [env]
+      PALA_APP_URL = "https://your-app-name.fly.dev"
+    ```
+  </Step>
+
+  <Step title="Create volume">
+    ```bash
+    fly volumes create palacms_data --size 3
+    ```
+  </Step>
+
+  <Step title="Deploy">
+    ```bash
+    fly deploy
+    ```
+  </Step>
+</Steps>
+
+## Database Backups
+
+Pala uses SQLite, stored in `/app/pb_data`. Back up this directory regularly.
+
+<Info>
+**Cloud users:** Backups are handled automatically. Backup frequency depends on your plan.
+</Info>
+
+### PocketBase Automated Backups (Recommended)
+
+PocketBase has built-in automated backups that you can configure through the admin UI.
+
+<Steps>
+  <Step title="Access PocketBase Admin">
+    Navigate to `https://your-domain.com/_/` and log in with your admin credentials.
+  </Step>
+
+  <Step title="Go to Settings → Backups">
+    Click on Settings in the sidebar, then select the Backups tab.
+  </Step>
+
+  <Step title="Configure backup schedule">
+    Set a cron expression for your backup schedule:
+    - **Daily at 2 AM**: `0 2 * * *`
+    - **Every 6 hours**: `0 */6 * * *`
+    - **Hourly**: `0 * * * *`
+    - **Every minute** (not recommended): `* * * * *`
+  </Step>
+
+  <Step title="Choose backup location">
+    - **Local storage**: Backups saved to `/app/pb_data/backups`
+    - **S3-compatible storage**: Configure AWS S3, Backblaze B2, or similar for off-site backups
+  </Step>
+
+  <Step title="Set retention policy">
+    Configure how many backups to keep (e.g., keep last 7 days of backups).
+  </Step>
+</Steps>
+
+<Tip>
+For production sites, configure S3-compatible storage for off-site backups. This protects against server failures.
+</Tip>
+
+### Manual Backups with Docker
+
+```bash
+#!/bin/bash
+# backup-palacms.sh
+
+BACKUP_DIR="/backups/palacms"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+# Create backup directory
+mkdir -p $BACKUP_DIR
+
+# Copy pb_data
+docker cp palacms:/app/pb_data $BACKUP_DIR/pb_data_$DATE
+
+# Keep only last 7 days
+find $BACKUP_DIR -type d -mtime +7 -exec rm -rf {} +
+```
+
+Add to crontab:
+```bash
+0 2 * * * /path/to/backup-palacms.sh
+```
+
+### Restore from Backup
+
+```bash
+# Stop container
+docker-compose down
+
+# Restore backup
+docker cp pb_data_20250101_020000 palacms:/app/pb_data
+
+# Start container
+docker-compose up -d
+```
+
+<Warning>
+Test your backups regularly. A backup you haven't tested is not a backup.
+</Warning>
+
+## Updating Pala
+
+### Docker Compose
+
+```bash
+# Pull latest image
+docker-compose pull
+
+# Restart with new image
+docker-compose up -d
+```
+
+### Docker Run
+
+```bash
+# Stop and remove old container
+docker stop palacms
+docker rm palacms
+
+# Pull latest image
+docker pull ghcr.io/palacms/palacms:latest
+
+# Start new container (same command as initial deploy)
+docker run -d --name palacms ...
+```
+
+<Tip>
+Always backup before updating, especially for major version changes.
+</Tip>
+
+## Performance Optimization
+
+### Enable Gzip Compression
+
+In your reverse proxy:
+
+**Nginx:**
+```nginx
+gzip on;
+gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript;
+```
+
+**Caddy:**
+```caddy
+encode gzip
+```
+
+### Add Caching Headers
+
+```nginx
+location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+}
+```
+
+### Use a CDN
+
+Point your domain through Cloudflare (free tier) for:
+- Global CDN
+- DDoS protection
+- SSL certificates
+- Caching
+
+## Security Checklist
+
+<AccordionGroup>
+  <Accordion title="Use strong passwords">
+    Generate random passwords for all accounts. Never use default or simple passwords.
+  </Accordion>
+
+  <Accordion title="Enable firewall">
+    Only allow ports 80, 443, and 22 (SSH). Block all other inbound traffic.
+  </Accordion>
+
+  <Accordion title="Keep Docker updated">
+    Regularly update Docker and the Pala image for security patches.
+  </Accordion>
+
+  <Accordion title="Use HTTPS everywhere">
+    Never serve Pala over HTTP in production. Use Let's Encrypt for free SSL certificates.
+  </Accordion>
+
+  <Accordion title="Restrict SSH access">
+    - Disable password authentication
+    - Use SSH keys only
+    - Change default SSH port
+    - Use fail2ban to block brute force attempts
+  </Accordion>
+
+  <Accordion title="Regular backups">
+    Automate daily backups and store them off-server (S3, Backblaze, etc.).
+  </Accordion>
+
+  <Accordion title="Monitor logs">
+    Check Docker logs regularly for suspicious activity:
+    ```bash
+    docker-compose logs -f --tail=100
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+See the [Troubleshooting Guide](/reference/troubleshooting) for common deployment issues and solutions.
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Environment Variables" icon="gear" href="/reference/environment-variables">
+    Configure Pala with environment variables
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/reference/troubleshooting">
+    Solve common deployment issues
+  </Card>
+</CardGroup>

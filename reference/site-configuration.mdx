@@ -1,0 +1,247 @@
+---
+title: 'Site Configuration'
+description: 'Configure site-wide settings, design systems, and global content.'
+---
+
+Site configuration controls global settings that apply across your entire site. This includes design variables, global content fields, and custom HTML for scripts and analytics.
+
+## Site Fields
+
+**Site Fields** are global content that appears across multiple pages. They're perfect for content that needs to be consistent site-wide but may change over time.
+
+### Common Use Cases
+
+- **Logo**: Site logo that appears in the header
+- **Navigation**: Main navigation menu items
+- **Footer Content**: Footer links, copyright, social media
+- **Contact Information**: Phone, email, address
+- **Social Links**: Twitter, Facebook, LinkedIn profiles
+- **SEO Defaults**: Default meta description, Open Graph image
+
+### Creating Site Fields
+
+<Steps>
+  <Step title="Open site settings">
+    Navigate to your site and click "Site" in the toolbar
+  </Step>
+
+  <Step title="Add a field">
+    Click "Add Field" and choose your field type
+  </Step>
+
+  <Step title="Configure the field">
+    - **Name**: Internal identifier (e.g., `logo`, `nav_items`)
+    - **Label**: Display name for editors
+    - **Type**: Field type (text, image, repeater, etc.)
+  </Step>
+
+  <Step title="Use in blocks">
+    Reference site fields in your blocks using Site Field fields:
+
+    1. Add a Site Field field to your block
+    2. Set the field key (e.g., `logo`)
+    3. Select which site field to reference
+
+    ```svelte
+    <!-- logo is a Site Field referencing the site's logo field -->
+    {#if logo?.url}
+      <img src={logo.url} alt={logo.alt} />
+    {/if}
+    ```
+  </Step>
+</Steps>
+
+<Info>
+Site fields are reactive. When you update them, all blocks using them update automatically across your entire site.
+</Info>
+
+## Head HTML
+
+The **Head HTML** section lets you add custom HTML to the `<head>` of every page on your site. Use this for analytics, fonts, meta tags, and other site-wide scripts.
+
+<Info>
+Head HTML supports Svelte syntax and has access to site fields, allowing you to dynamically generate content based on your site configuration.
+</Info>
+
+### Common Use Cases
+
+**CSS Variables (Design System):**
+
+Define a design system for your site using CSS Custom Properties. Define colors, typography, spacing, and other design tokens once, then use them across all your blocks.
+
+```html
+<style>
+  :root {
+    /* Colors */
+    --color-primary: #ff6b35;
+    --color-secondary: #004e89;
+    --color-text: #1a1a1a;
+    --color-background: #ffffff;
+
+    /* Typography */
+    --font-primary: 'Inter', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+    --font-size-base: 16px;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+
+    /* Spacing */
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 4rem;
+
+    /* Layout */
+    --max-width: 1200px;
+    --border-radius: 8px;
+  }
+</style>
+```
+
+Then reference these variables in your block CSS:
+```svelte
+<style>
+  .hero {
+    background: var(--color-primary);
+    color: var(--color-background);
+    padding: var(--spacing-xl) var(--spacing-md);
+    border-radius: var(--border-radius);
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-xl);
+  }
+</style>
+```
+
+<Tip>
+Use semantic naming (e.g., `--color-primary`) rather than descriptive names (e.g., `--color-orange`) so you can change values without renaming variables.
+</Tip>
+
+**Using Svelte:**
+
+You can use Svelte syntax to dynamically inject content based on your site configuration.
+
+```html
+<!-- Reference site fields -->
+{#if logo?.url}
+  <link rel="icon" href={logo.url}>
+{/if}
+
+{#if site_name}
+  <meta property="og:site_name" content={site_name}>
+{/if}
+
+<!-- Conditional analytics -->
+{#if ga_id}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={ga_id}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{ga_id}');
+  </script>
+{/if}
+```
+
+<Tip>
+To use site fields in Head HTML, first create the fields in Site → Fields, then reference them by name in your Head HTML code.
+</Tip>
+
+**Analytics & Tracking:**
+```html
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'GA_MEASUREMENT_ID');
+</script>
+
+<!-- Plausible Analytics -->
+<script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script>
+```
+
+**Custom Fonts:**
+```html
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<!-- Adobe Fonts -->
+<link rel="stylesheet" href="https://use.typekit.net/abc1234.css">
+```
+
+**Meta Tags:**
+```html
+<!-- Open Graph -->
+<meta property="og:site_name" content="Your Site Name">
+<meta property="og:type" content="website">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@yourhandle">
+```
+
+**Favicon:**
+```html
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+```
+
+<Warning>
+Head HTML is added to every page. Keep it minimal to avoid slowing down your site. Non-critical scripts (analytics, chat widgets, etc.) should be placed in Body Footer HTML instead to improve page load speed.
+</Warning>
+
+## Body Footer HTML
+
+The **Body Footer HTML** section lets you add custom HTML before the closing `</body>` tag of every page. Use this for scripts that should load after the page content.
+
+<Warning>
+Body Footer HTML only supports static HTML - it does not support Svelte syntax or access to site fields. If you need dynamic content, use the Head HTML section instead.
+</Warning>
+
+### Common Use Cases
+
+**Chat Widgets:**
+```html
+<!-- Intercom -->
+<script>
+  window.intercomSettings = {
+    app_id: "YOUR_APP_ID"
+  };
+  (function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',w.intercomSettings);}else{var d=document;var i=function(){i.c(arguments);};i.q=[];i.c=function(args){i.q.push(args);};w.Intercom=i;var l=function(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/YOUR_APP_ID';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);};if(document.readyState==='complete'){l();}else if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})();
+</script>
+```
+
+**Third-party Tools:**
+```html
+<!-- Hotjar -->
+<script>
+  (function(h,o,t,j,a,r){
+    h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+    h._hjSettings={hjid:YOUR_ID,hjsv:6};
+    a=o.getElementsByTagName('head')[0];
+    r=o.createElement('script');r.async=1;
+    r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+    a.appendChild(r);
+  })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+```
+
+<Info>
+Body Footer HTML loads after page content, making it better for non-critical scripts. This improves perceived page load speed.
+</Info>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Working with Fields" icon="input-text" href="/building-sites/working-with-fields">
+    Learn how to create and use fields in blocks
+  </Card>
+  <Card title="Understanding Slots" icon="table-layout" href="/building-sites/understanding-slots">
+    Master page type slots for consistent layouts
+  </Card>
+</CardGroup>

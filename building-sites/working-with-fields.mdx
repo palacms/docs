@@ -3,7 +3,7 @@ title: 'Working with Fields'
 description: 'Add content fields to blocks and pages to make them editable.'
 ---
 
-Fields are what transform your Svelte components into editable blocks. You write the component code, then attach fields to make specific parts editable by content editors. This guide shows you how to add and configure fields effectively.
+Fields are what transform your components into editable blocks. You write the component code, then attach fields to make specific parts editable by content editors. This guide shows you how to add and configure fields effectively.
 
 ## Understanding Fields
 
@@ -25,15 +25,9 @@ Fields can be added to both blocks (for component-level editing) and page types 
 </Step>
 
 <Step title="Write your component code">
-  Build your Svelte component with props that will become fields:
-  
+  Build your component. Fields are globally available—no need to declare them:
+
   ```svelte
-  <script>
-    export let headline = "Default Headline";
-    export let description = "";
-    export let image_url = "";
-  </script>
-  
   <section class="hero">
     <h1>{headline}</h1>
     <p>{description}</p>
@@ -42,9 +36,9 @@ Fields can be added to both blocks (for component-level editing) and page types 
     {/if}
   </section>
   ```
-  
+
   <Tip>
-  Always provide default values for props. This ensures your component works even if fields aren't filled in.
+  Fields are automatically available in your component code. Just reference them directly like `{headline}` or `{image_url}`.
   </Tip>
 </Step>
 
@@ -83,40 +77,36 @@ Fields can be added to both blocks (for component-level editing) and page types 
 
 ## Field Naming
 
-Field names must match component props exactly:
+When you create a field, the field name determines how you reference it in your component:
 
 ```svelte
-<script>
-  // Component prop
-  export let cta_text = "Click me";
-</script>
+<!-- If you create a field named "cta_text" -->
+<button>{cta_text}</button>
 ```
 
 **Field configuration:**
-- **Field name**: `cta_text` (must match exactly)
-- **Label**: "CTA Text" (can be different, this is what editors see)
+- **Field name**: `cta_text` (how you reference it in code)
+- **Label**: "CTA Text" (what editors see in the UI)
 
 <Warning>
-Field names are case-sensitive and must match prop names exactly. `cta_text` and `ctaText` are different.
+Field names are case-sensitive. `cta_text` and `ctaText` are different variables in your component.
 </Warning>
 
 ## Common Field Patterns
 
 ### Hero Block
 
-A typical hero block needs:
+A typical hero block might use these fields in the template:
 
 ```svelte
-<script>
-  export let headline = "";
-  export let subheadline = "";
-  export let cta_text = "";
-  export let cta_link = "/";
-  export let background_image = "";
-</script>
+<section class="hero" style="background-image: url({background_image})">
+  <h1>{headline}</h1>
+  <p>{subheadline}</p>
+  <a href={cta_link}>{cta_text}</a>
+</section>
 ```
 
-**Fields to add:**
+**Fields to create:**
 - `headline` (Text) - Main headline
 - `subheadline` (Text) - Supporting text
 - `cta_text` (Text) - Button text
@@ -128,13 +118,12 @@ A typical hero block needs:
 A simple text block:
 
 ```svelte
-<script>
-  export let content = "";
-  export let alignment = "left";
-</script>
+<div class="text-{alignment}">
+  {@html content}
+</div>
 ```
 
-**Fields to add:**
+**Fields to create:**
 - `content` (Rich Text) - The main content
 - `alignment` (Select) - Options: "left", "center", "right"
 
@@ -143,14 +132,15 @@ A simple text block:
 An image with caption:
 
 ```svelte
-<script>
-  export let image_url = "";
-  export let alt_text = "";
-  export let caption = "";
-</script>
+<figure>
+  <img src={image_url} alt={alt_text} />
+  {#if caption}
+    <figcaption>{caption}</figcaption>
+  {/if}
+</figure>
 ```
 
-**Fields to add:**
+**Fields to create:**
 - `image_url` (Image) - The image
 - `alt_text` (Text) - Alt text for accessibility
 - `caption` (Text, optional) - Image caption
@@ -160,19 +150,264 @@ An image with caption:
 A grid of cards using a repeater:
 
 ```svelte
-<script>
-  export let cards = [];
-  export let columns = 3;
-</script>
+<div class="grid cols-{columns}">
+  {#each cards as card}
+    <div class="card">
+      {#if card.image}
+        <img src={card.image} alt={card.title} />
+      {/if}
+      <h3>{card.title}</h3>
+      <p>{card.description}</p>
+      {#if card.link}
+        <a href={card.link}>Learn more</a>
+      {/if}
+    </div>
+  {/each}
+</div>
 ```
 
-**Fields to add:**
+**Fields to create:**
 - `cards` (Repeater) with nested fields:
   - `title` (Text)
   - `description` (Text)
   - `image` (Image, optional)
   - `link` (Link, optional)
 - `columns` (Number) - Number of columns
+
+## Template Syntax Guide
+
+Pala blocks use Svelte 5 syntax. Here's the essential syntax you'll use most often when working with fields.
+
+### Basic Interpolation
+
+Display field values in your template:
+
+```svelte
+<h1>{headline}</h1>
+<p>{description}</p>
+
+<!-- Image fields have .url and .alt properties -->
+<img src={image.url} alt={image.alt} />
+```
+
+### Fallback Values
+
+Provide default values when fields are empty:
+
+```svelte
+<!-- Using || operator -->
+<h1>{headline || "Welcome"}</h1>
+
+<!-- Using ?? for null/undefined only -->
+<p>{description ?? "No description available"}</p>
+```
+
+### Conditionals
+
+Show or hide elements based on field values:
+
+```svelte
+<!-- Simple if -->
+{#if image_url}
+  <img src={image_url} alt={alt_text} />
+{/if}
+
+<!-- If/else -->
+{#if featured}
+  <span class="badge">Featured</span>
+{:else}
+  <span class="badge">Standard</span>
+{/if}
+
+<!-- Multiple conditions -->
+{#if variant === "primary"}
+  <button class="btn-primary">{cta_text}</button>
+{:else if variant === "secondary"}
+  <button class="btn-secondary">{cta_text}</button>
+{:else}
+  <button class="btn-default">{cta_text}</button>
+{/if}
+```
+
+### Loops (Repeater Fields)
+
+Iterate over repeater field arrays:
+
+```svelte
+<!-- Basic loop -->
+{#each items as item}
+  <div class="item">
+    <h3>{item.title}</h3>
+    <p>{item.description}</p>
+  </div>
+{/each}
+
+<!-- With index -->
+{#each features as feature, index}
+  <div class="feature">
+    <span class="number">{index + 1}</span>
+    <h3>{feature.title}</h3>
+  </div>
+{/each}
+
+<!-- With else (when array is empty) -->
+{#each items as item}
+  <div>{item.name}</div>
+{:else}
+  <p>No items to display</p>
+{/each}
+```
+
+### HTML Rendering
+
+Render HTML from rich text or markdown fields:
+
+```svelte
+<!-- Rich text content -->
+<div class="content">
+  {@html content}
+</div>
+
+<!-- Markdown content (processed automatically) -->
+<article class="markdown">
+  {@html markdown_content}
+</article>
+```
+
+<Info>
+Rich text and markdown fields render HTML using `{@html}`. Since content comes from trusted editors (not site visitors), this is safe to use.
+</Info>
+
+### Reactive Statements
+
+Compute derived values from fields:
+
+```svelte
+<script>
+  // Computed value based on fields
+  $: fullName = `${firstName} ${lastName}`;
+
+  // Computed array from repeater
+  $: featuredItems = items.filter(item => item.featured);
+
+  // Multiple statements
+  $: {
+    const total = items.reduce((sum, item) => sum + item.price, 0);
+    console.log('Total:', total);
+  }
+</script>
+
+<h1>Welcome, {fullName}</h1>
+
+{#each featuredItems as item}
+  <div>{item.title}</div>
+{/each}
+```
+
+### Event Handlers
+
+Handle user interactions:
+
+```svelte
+<script>
+  function handleClick() {
+    console.log('Button clicked');
+    // Analytics, tracking, etc.
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    // Handle form submission
+  }
+</script>
+
+<button on:click={handleClick}>{cta_text}</button>
+
+<form on:submit={handleSubmit}>
+  <!-- form fields -->
+</form>
+```
+
+### Class Directives
+
+Apply classes conditionally:
+
+```svelte
+<!-- Single class -->
+<div class:active={isActive}>Content</div>
+
+<!-- Multiple classes -->
+<div
+  class:primary={variant === "primary"}
+  class:large={size === "large"}
+  class:featured={featured}
+>
+  Content
+</div>
+
+<!-- Shorthand (when variable matches class name) -->
+<div class:featured>Content</div>
+```
+
+### Style Directives
+
+Apply inline styles dynamically:
+
+```svelte
+<!-- Single style -->
+<div style:color={textColor}>Colored text</div>
+
+<!-- Multiple styles -->
+<div
+  style:background-color={backgroundColor}
+  style:color={textColor}
+  style:padding="{spacing}rem"
+>
+  Styled content
+</div>
+
+<!-- CSS custom properties -->
+<div style:--theme-color={themeColor}>
+  Content with CSS variable
+</div>
+```
+
+### Snippets (Reusable Templates)
+
+Create reusable template chunks within a block:
+
+```svelte
+{#snippet card(title, description)}
+  <div class="card">
+    <h3>{title}</h3>
+    <p>{description}</p>
+  </div>
+{/snippet}
+
+<!-- Use the snippet -->
+{@render card("First Card", "Description here")}
+{@render card("Second Card", "Another description")}
+
+<!-- Use in loops -->
+{#each items as item}
+  {@render card(item.title, item.description)}
+{/each}
+```
+
+### What You Won't Need
+
+These Svelte features are **not relevant** for Pala blocks:
+
+- **Stores** - No need for cross-component state; fields are globally available within each block
+- **Context API** - Use relational fields instead (Page Field, Site Field, Page, Page List) to reference data from elsewhere
+- **$bindable** - Only for component authoring, not block templates
+- **Custom elements** - Blocks compile to standard components
+- **SvelteKit features** - Routing, load functions, etc. (Pala handles this)
+- **Component slots** - Blocks don't accept slotted content
+
+### Learn More
+
+For advanced Svelte features and patterns, see the [Svelte 5 documentation](https://svelte.dev/docs/svelte/overview).
 
 ## Field Configuration
 
@@ -196,21 +431,25 @@ A Hero block's `headline` field should be required—a hero without a headline d
 
 ### Default Values
 
-Set default values to make components work out of the box:
+You can set default values in the field configuration, or handle empty values in your template:
 
 ```svelte
-<script>
-  // Good: Has sensible defaults
-  export let headline = "Welcome";
-  export let show_cta = true;
-  export let columns = 3;
-</script>
+<!-- Option 1: Use field defaults (set in field config) -->
+<h1>{headline}</h1>
+
+<!-- Option 2: Provide fallback values in template -->
+<h1>{headline || "Welcome"}</h1>
+
+<!-- Option 3: Conditionally render -->
+{#if headline}
+  <h1>{headline}</h1>
+{/if}
 ```
 
-**Field defaults:**
-- Match the default in your component code
-- Provide helpful starting points
-- Make components functional immediately
+**Best practices:**
+- Set sensible defaults in field configuration
+- Handle empty/missing values gracefully
+- Make components functional even with minimal content
 
 ### Help Text
 
@@ -277,13 +516,9 @@ Repeaters let editors add multiple items:
 </Step>
 
 <Step title="Use in component">
-  Your component receives an array:
-  
+  Reference the repeater field as an array:
+
   ```svelte
-  <script>
-    export let features = [];
-  </script>
-  
   {#each features as feature}
     <div class="feature">
       <h3>{feature.title}</h3>
@@ -313,20 +548,13 @@ Groups organize related fields:
 </Step>
 
 <Step title="Use in component">
-  Your component receives an object:
-  
+  Reference the group field as an object:
+
   ```svelte
-  <script>
-    export let author = {
-      name: "",
-      email: "",
-      bio: ""
-    };
-  </script>
-  
   <div class="author">
     <h3>{author.name}</h3>
     <p>{author.bio}</p>
+    <a href="mailto:{author.email}">Contact</a>
   </div>
   ```
 </Step>
@@ -378,27 +606,22 @@ For image and file fields:
 Always test your components with empty fields:
 
 ```svelte
-<script>
-  export let headline = ""; // Test with empty
-  export let image_url = ""; // Test without image
-</script>
-
 {#if headline}
   <h1>{headline}</h1>
 {/if}
 
 {#if image_url}
-  <img src={image_url} />
+  <img src={image_url} alt={alt_text} />
 {/if}
 ```
 
 ### Test with Default Values
 
-Verify defaults work:
+Verify defaults work (if you set them in field configuration):
 
 1. Create a page with your block
 2. Don't fill in any fields
-3. Check that the component displays correctly with defaults
+3. Check that the component displays correctly with default values
 
 ### Test Edge Cases
 
@@ -434,14 +657,11 @@ Labels are what editors see:
 
 ### 3. Provide Helpful Defaults
 
-Defaults make components work immediately:
+Set defaults in field configuration to make components work immediately:
 
-```svelte
-// Good defaults
-export let columns = 3;
-export let show_title = true;
-export let alignment = "left";
-```
+- **Number fields**: Set sensible defaults (e.g., `columns` defaults to 3)
+- **Boolean fields**: Set appropriate defaults (e.g., `show_title` defaults to true)
+- **Select fields**: Pre-select the most common option (e.g., `alignment` defaults to "left")
 
 ### 4. Group Related Fields
 
@@ -463,25 +683,30 @@ Add validation to prevent errors:
 
 ### Mismatched Names
 
-Field names must match prop names exactly:
+Field names must match how you reference them in code:
 
 ```svelte
-// Component
-export let ctaText = "";
+<!-- If field is named "ctaText" in field config -->
+<button>{ctaText}</button>
 
-// Field name must be: ctaText (not cta_text)
+<!-- Not "cta_text" - field names are case-sensitive -->
 ```
 
-### Missing Defaults
+### Not Handling Empty Values
 
-Always provide defaults:
+Always handle missing or empty field values:
 
 ```svelte
-// Bad: No default
-export let headline;
+<!-- Bad: Breaks if headline is empty -->
+<h1>{headline}</h1>
 
-// Good: Has default
-export let headline = "";
+<!-- Good: Handles empty values -->
+{#if headline}
+  <h1>{headline}</h1>
+{/if}
+
+<!-- Also good: Provides fallback -->
+<h1>{headline || "Welcome"}</h1>
 ```
 
 ### Over-Complicating

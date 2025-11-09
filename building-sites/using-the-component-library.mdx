@@ -47,7 +47,7 @@ Blocks in your library are independent of sites. Create a block once, use it in 
 </Step>
 
 <Step title="Write your component">
-  Use the in-browser editor to write your Svelte component code.
+  Use the in-browser editor to write your component code.
   
   <Info>
   The editor provides syntax highlighting, auto-completion, and instant preview.
@@ -335,16 +335,19 @@ The marketplace will let you discover blocks built by the community and share yo
 
 ### 1. Build Reusable Blocks
 
-Design blocks to work in multiple contexts:
+Design blocks to work in multiple contexts by choosing field names carefully:
 
 ```svelte
-// Good: Flexible and reusable
-export let headline = "";
-export let variant = "default"; // default, large, small
+<!-- Good: Flexible and reusable field names -->
+<h1 class="hero-{variant}">{headline}</h1>
+<!-- Fields: headline, variant (select: default, large, small) -->
 
-// Avoid: Too specific
-export let homepage_headline = "";
+<!-- Avoid: Too specific field names -->
+<h1>{homepage_headline}</h1>
+<!-- Field: homepage_headline (limits reusability) -->
 ```
+
+Use generic field names like `headline`, `content`, `image` instead of context-specific names like `homepage_headline` or `about_page_content`.
 
 ### 2. Document Your Blocks
 

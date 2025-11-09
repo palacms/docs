@@ -140,23 +140,16 @@ Blocks are the building blocks of your pages. Let's create a simple Hero block:
   - **Field name**: `subheadline` (Text field)
   - **Field name**: `cta_text` (Text field)
   - **Field name**: `cta_link` (Text field)
-  
-  Update your component to use these fields:
-  
+
+  Fields are automatically available in your component—just reference them:
+
   ```svelte
-  <script>
-    export let headline = "Welcome to Pala";
-    export let subheadline = "Build beautiful sites with code and content together.";
-    export let cta_text = "Get Started";
-    export let cta_link = "/about";
-  </script>
-  
   <section class="hero">
     <h1>{headline}</h1>
     <p>{subheadline}</p>
     <a href={cta_link} class="button">{cta_text}</a>
   </section>
-  
+
   <style>
     /* ... existing styles ... */
   </style>
@@ -278,7 +271,7 @@ You've built your first Pala site! Here's where to go from here:
 </Card>
 
 <Card title="Writing Components" icon="code" href="/building-sites/writing-components">
-  Learn best practices for building reusable Svelte components and blocks.
+  Learn best practices for building reusable components and blocks.
 </Card>
 
 <Card title="Defining Page Types" icon="layer-group" href="/building-sites/defining-page-types">

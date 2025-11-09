@@ -1,0 +1,281 @@
+---
+title: 'Understanding Slots'
+description: 'Learn how slots organize blocks into header, body, and footer areas.'
+---
+
+Slots are areas where blocks can be placed within a page type. They help you create consistent layouts while giving editors control over content.
+
+## The Three Slots
+
+Every page type has three slots:
+
+### Header Slot
+
+The **header slot** appears at the top of every page of this type.
+
+**Use for:**
+- Site navigation
+- Logo
+- Top banner
+- Search bar
+
+**Characteristics:**
+- Defined at the page type level
+- Same content appears on all pages
+- Editors cannot modify on individual pages
+- Perfect for site-wide UI elements
+
+**Example:**
+```
+┌─────────────────────────────┐
+│      Header Slot            │ ← Navigation, Logo
+│  (Same on all pages)        │
+├─────────────────────────────┤
+│                             │
+│      Body Slot              │
+│  (Editable per page)        │
+│                             │
+├─────────────────────────────┤
+│      Footer Slot            │ ← Copyright, Links
+│  (Same on all pages)        │
+└─────────────────────────────┘
+```
+
+### Body Slot
+
+The **body slot** is the main content area where editors have full control.
+
+**Use for:**
+- Main page content
+- Hero sections
+- Text blocks
+- Image galleries
+- Call-to-action sections
+
+**Characteristics:**
+- Editors can add, remove, and reorder blocks
+- Different content on each page
+- Most flexible slot
+- Blocks stack vertically
+
+**Editor Capabilities:**
+- ✅ Add blocks (from available blocks)
+- ✅ Remove blocks
+- ✅ Reorder blocks (drag and drop)
+- ✅ Edit block content
+- ❌ Cannot modify header/footer
+- ❌ Cannot add blocks not in "available blocks"
+
+### Footer Slot
+
+The **footer slot** appears at the bottom of every page of this type.
+
+**Use for:**
+- Site footer
+- Copyright notice
+- Footer navigation
+- Social media links
+- Newsletter signup
+
+**Characteristics:**
+- Defined at the page type level
+- Same content appears on all pages
+- Editors cannot modify on individual pages
+- Perfect for consistent site-wide elements
+
+## Static vs Dynamic Body Slots
+
+The body slot behavior changes based on whether the page type has available blocks:
+
+### Dynamic Body (Default)
+
+**When:** Page type has "Available Blocks" configured
+
+**Behavior:**
+- Editors can add blocks from the list
+- Editors can remove blocks
+- Editors can reorder blocks
+- Each page can have different blocks
+
+**Example:**
+```
+Page Type: Blog Post
+Available Blocks: [Hero, Text, Image, Code Block, CTA]
+
+Page 1 (Blog Post):
+- Hero
+- Text
+- Image
+- CTA
+
+Page 2 (Blog Post):
+- Text
+- Code Block
+- Text
+- Image
+```
+
+### Static Body
+
+**When:** Page type has NO available blocks configured
+
+**Behavior:**
+- Body blocks are pre-defined in the page type
+- Same structure on all pages
+- Content varies per page, structure stays the same
+- Editors can only edit block content, not add/remove
+
+**Example:**
+```
+Page Type: Team Member
+Available Blocks: [] (empty)
+Body Slot Blocks: [Profile Header, Bio Text, Contact Info]
+
+All team member pages have:
+- Profile Header (content varies)
+- Bio Text (content varies)
+- Contact Info (content varies)
+```
+
+<Tip>
+Use static body slots when you want a consistent structure across all pages of a type. Great for profiles, product pages, or any templated content.
+</Tip>
+
+## Configuring Slots in Page Types
+
+<Steps>
+  <Step title="Create or edit a page type">
+    Navigate to Pages → Page Types → Create/Edit
+  </Step>
+
+  <Step title="Configure header slot">
+    Under "Header Slot":
+    - Click "Add Block"
+    - Select blocks to appear at the top of every page
+    - Order matters - blocks appear top to bottom
+  </Step>
+
+  <Step title="Configure available blocks">
+    Under "Available Blocks":
+    - Add blocks editors can use in the body slot
+    - Leave empty for static body slot
+  </Step>
+
+  <Step title="Configure body slot (for static)">
+    If Available Blocks is empty:
+    - Configure default blocks for the body
+    - These appear on all pages
+  </Step>
+
+  <Step title="Configure footer slot">
+    Under "Footer Slot":
+    - Click "Add Block"
+    - Select blocks to appear at the bottom of every page
+  </Step>
+</Steps>
+
+## Common Patterns
+
+### Blog Post Template
+
+```
+Header Slot: [Site Navigation]
+Available Blocks: [Hero, Text Block, Image, Code Block, Quote, CTA]
+Footer Slot: [Site Footer]
+```
+
+**Result:** Consistent header/footer, flexible body content
+
+### Landing Page Template
+
+```
+Header Slot: [Minimal Nav]
+Available Blocks: [Hero, Features, Testimonials, Pricing, CTA, FAQ]
+Footer Slot: [Minimal Footer]
+```
+
+**Result:** Marketing-focused blocks, modular layout
+
+### Product Page Template
+
+```
+Header Slot: [Site Navigation]
+Available Blocks: [] (empty)
+Body Slot: [Product Hero, Specs, Gallery, Reviews, Related Products]
+Footer Slot: [Site Footer]
+```
+
+**Result:** Consistent product page structure
+
+### Documentation Page
+
+```
+Header Slot: [Docs Navigation, Search]
+Available Blocks: [Text, Code Block, Image, Accordion, Tabs, Alert]
+Footer Slot: [Docs Footer, Previous/Next]
+```
+
+**Result:** Documentation-specific UI and blocks
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Keep headers and footers minimal">
+    Heavy headers/footers slow down editing and can overwhelm the page. Include only what's truly site-wide.
+  </Accordion>
+
+  <Accordion title="Group related blocks">
+    Instead of adding 20 individual blocks to available blocks, consider creating composite blocks that include common combinations.
+  </Accordion>
+
+  <Accordion title="Use static bodies for templated content">
+    Product pages, team profiles, and case studies benefit from consistent structure. Use static body slots to maintain consistency.
+  </Accordion>
+
+  <Accordion title="Preview before publishing">
+    Always preview pages to ensure header/footer blocks work well with body content. Check responsive behavior.
+  </Accordion>
+
+  <Accordion title="Consider mobile navigation">
+    Header blocks should handle mobile viewports. Test navigation collapse/hamburger menus.
+  </Accordion>
+</AccordionGroup>
+
+## Semantic HTML
+
+Pala wraps each slot in semantic HTML tags:
+
+```html
+<header data-slot="header">
+  <!-- Header slot blocks -->
+</header>
+
+<main data-slot="body">
+  <!-- Body slot blocks -->
+</main>
+
+<footer data-slot="footer">
+  <!-- Footer slot blocks -->
+</footer>
+```
+
+This provides:
+- ✅ Better accessibility (screen readers)
+- ✅ Proper document structure
+- ✅ SEO benefits
+- ✅ Valid HTML5
+
+<Info>
+The semantic tags are added automatically. You don't need to include them in your block code.
+</Info>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Defining Page Types" icon="file-lines" href="/building-sites/defining-page-types">
+    Learn how to create and configure page types
+  </Card>
+  <Card title="Working with Fields" icon="input-text" href="/building-sites/working-with-fields">
+    Add editable fields to your blocks
+  </Card>
+</CardGroup>

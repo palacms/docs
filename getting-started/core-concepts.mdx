@@ -15,6 +15,47 @@ Site → Page Types → Pages → Blocks → (optional) Sections
 
 Each level builds on the previous one, creating guardrails that keep designs intact while giving editors the freedom to manage content.
 
+### Architecture Diagram
+
+Here's how the data model works:
+
+```mermaid
+graph TB
+    Site[Site]
+    Site --> SiteFields[Fields<br/>Schema for global content]
+    Site --> SiteEntries[Entries<br/>Values: logo, nav, etc.]
+    Site --> Blocks[Blocks]
+    Site --> PageTypes[Page Types]
+    Site --> Pages[Pages]
+
+    Blocks --> BlockCode[Code<br/>HTML, CSS, JavaScript]
+    Blocks --> BlockFields[Fields<br/>Schema for block content]
+
+    PageTypes --> PTFields[Fields<br/>Schema for page metadata]
+    PageTypes --> AvailableBlocks[Available Blocks<br/>Which blocks editors can use]
+    PageTypes --> Slots[Slots]
+
+    Slots --> Header[Header Slot<br/>Static sections]
+    Slots --> Body[Body Slot<br/>Editable or fixed]
+    Slots --> Footer[Footer Slot<br/>Static sections]
+
+    Pages --> PageType[Page Type<br/>Template this page uses]
+    Pages --> PageEntries[Entries<br/>Values for page fields]
+    Pages --> Sections[Sections]
+
+    Sections --> SectionBlock[Block<br/>Which block this uses]
+    Sections --> SectionEntries[Entries<br/>Values for block fields]
+
+    style Site fill:#ff6b35,stroke:#333,stroke-width:2px,color:#fff
+    style PageTypes fill:#004e89,stroke:#333,stroke-width:2px,color:#fff
+    style Pages fill:#4a90e2,stroke:#333,stroke-width:2px,color:#fff
+    style Blocks fill:#f39c12,stroke:#333,stroke-width:2px,color:#fff
+```
+
+<Info>
+**Terminology:** **Fields** define schemas, **Entries** store values. **Blocks** (called Symbols in code) are reusable components with code and field definitions. **Sections** are block instances on pages with their own entries.
+</Info>
+
 ## Sites
 
 A **site** is your top-level container. Each site is completely independent with its own:

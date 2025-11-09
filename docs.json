@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
-  "name": "PalaCMS Docs",
+  "name": "Pala CMS Docs",
   "colors": {
     "primary": "#ff6b35",
     "light": "#ff6b35",
@@ -27,6 +27,7 @@
           "building-sites/your-first-site",
           "building-sites/writing-components",
           "building-sites/defining-page-types",
+          "building-sites/understanding-slots",
           "building-sites/working-with-fields",
           "building-sites/using-the-component-library",
           "building-sites/using-ai-to-build-components"
@@ -52,10 +53,24 @@
         ]
       },
       {
+        "group": "Dashboard",
+        "icon": "grid-2",
+        "pages": [
+          "dashboard/managing-sites",
+          "dashboard/block-library",
+          "dashboard/marketplace"
+        ]
+      },
+      {
         "group": "Reference",
         "icon": "book",
         "pages": [
-          "reference/field-types"
+          "reference/field-types",
+          "reference/site-configuration",
+          "reference/keyboard-shortcuts",
+          "reference/environment-variables",
+          "reference/deployment",
+          "reference/troubleshooting"
         ]
       }
     ],

@@ -48,25 +48,29 @@ Pala solves this by coupling code and content in self-contained blocks that live
 
 ## Technology Stack
 
-**Frontend:** Svelte - modern component framework with:
+**Frontend:** Svelte 5 - modern component framework with:
 - Simple syntax built on HTML, CSS, and JS
 - Scoped styles (no CSS conflicts)
 - Reactive JavaScript using runes ($state, $derived, $effect)
+- Snippets for reusable template chunks
 - Fast performance with small bundle sizes
 
 **Backend:** PocketBase - single-file backend built on SQLite with realtime data, file storage, and authentication
 
+**Note on Svelte syntax:** Blocks use Svelte 5 syntax. Fields are globally available (no need for `export let`). Most Svelte features work in blocks, but some are irrelevant (stores, context API, $bindable, custom elements, SvelteKit-specific features).
+
 ## Core Terminology
 
 **USE THESE TERMS:**
-- **"Pala"** - not "PalaCMS" (except in technical contexts like GitHub repo, domain)
+- **"Pala"** - not "Pala CMS" (except in technical contexts like GitHub repo, domain)
 - **"blocks"** - what users build (Svelte components with content fields attached)
+- **"slots"** - areas where blocks can be placed (header, body, footer)
 - **"editors"** - not "clients" in technical documentation
 - **"page types"** - templates that define structure and available blocks
 - **"component library" or "block library"** - personal library of reusable blocks
 
 **DON'T USE:**
-- "PalaCMS" in user-facing copy
+- "Pala CMS" in user-facing copy
 - "components" when referring to blocks (unless explaining the relationship)
 - "clients" in docs (use "editors" - save "clients" for marketing/handoff context)
 
@@ -93,9 +97,9 @@ Site Groups → Sites → Page Types → Pages → Blocks → (optional) Section
 **Page Type Level:**
 - Defines what kind of pages can exist (blog posts, events, team members)
 - Controls which blocks are available for editors to use
-- Sets required blocks that always appear (via zones)
+- Sets required blocks that always appear (via slots)
 - Defines page-level fields (metadata like title, author, publish date)
-- Organizes blocks into zones: header, body, and footer
+- Organizes blocks into slots: header, body, and footer
 - Acts as templates and guardrails for editors
 
 **Page Level:**
@@ -136,23 +140,23 @@ Site Groups → Sites → Page Types → Pages → Blocks → (optional) Section
 
 **Relationship:** Blocks ARE components, just with editable content fields. You build a component once (like a Hero section), add content fields to it (headline, image, CTA), and it becomes a block that editors can use.
 
-## Zones (Header, Body, Footer)
+## Slots (Header, Body, Footer)
 
-Page types organize blocks into three zones:
+Page types organize blocks into three slots:
 
-**Header Zone:**
+**Header Slot:**
 - Blocks that appear at the top of every page of this type
 - Typically includes navigation, site header, logo
 - Defined at the page type level, not per-page
 - Editors cannot modify header blocks on individual pages
 
-**Body Zone:**
+**Body Slot:**
 - Main content area where editors have full control
 - Editors can add, remove, and reorder blocks
 - Blocks are stacked vertically
 - This is where most page content lives
 
-**Footer Zone:**
+**Footer Slot:**
 - Blocks that appear at the bottom of every page of this type
 - Typically includes site footer, copyright, links
 - Defined at the page type level, not per-page
@@ -163,7 +167,7 @@ Page types organize blocks into three zones:
 **Developer Phase:**
 - Create site and configure site-wide settings
 - Define page types with specific available blocks
-- Set required blocks in header/footer zones
+- Set required blocks in header/footer slots
 - Configure content fields (site fields, page type fields, block fields)
 - Build and style components (blocks)
 - Add blocks to page types to make them available
@@ -171,7 +175,7 @@ Page types organize blocks into three zones:
 **Ongoing Collaboration:**
 - Invite collaborators as content editors
 - Editors can create pages, add blocks (from available options), manage content
-- Editors can drag and drop to reorder blocks in the body zone
+- Editors can drag and drop to reorder blocks in the body slot
 - Editors cannot touch code, modify page types, change header/footer blocks, or break design
 - Developers can jump in anytime to modify structure or design
 - Real-time collaboration with activity indicators showing who's working on what
@@ -195,8 +199,8 @@ Page types organize blocks into three zones:
 4. Configure:
    - Name, icon, color (for visual identification)
    - Available blocks (which blocks editors can use)
-   - Header zone blocks (required blocks at top)
-   - Footer zone blocks (required blocks at bottom)
+   - Header slot blocks (required blocks at top)
+   - Footer slot blocks (required blocks at bottom)
    - Page-level fields (metadata fields)
 
 ### Creating Blocks
@@ -230,7 +234,7 @@ Page types organize blocks into three zones:
 4. Select page type
 5. Enter page name and slug
 6. Page is created with header/footer blocks from page type
-7. Add blocks in body zone as needed
+7. Add blocks in body slot as needed
 
 ### Editing Pages
 
@@ -312,12 +316,41 @@ Fields are the content editing interface attached to blocks, page types, and sit
 - **Page List**: Select multiple pages
 
 **Utility:**
-- **Info**: Display-only informational text (for documentation/help)
+- **Info**: Display-only markdown text (for documentation/help)
 
-**Conditional Fields:**
-- Fields can be shown/hidden based on other field values
-- Conditions are evaluated at runtime
-- Useful for progressive disclosure and dynamic forms
+### Field Implementation Details
+
+**Object Fields:**
+- **Image** returns `{ url: string, alt: string }` - check with `{#if image?.url}`
+- **Link** returns `{ url: string, label: string }` - check with `{#if link?.url}`
+- **Icon** returns an SVG string - use `{@html icon}`, style with font-size and color
+
+**Accessing Site Fields:**
+- Site fields are NOT available via a global `SITE` object
+- To use site fields in blocks: add a "Site Field" field to your block, then select which site field to reference
+- Editing a site field from the block form updates it site-wide across all blocks that reference it
+- Available in page types and blocks (not at site level)
+
+**Accessing Page Fields:**
+- To use page fields in blocks: add a "Page Field" field to your block, then select which page field to reference
+- Editing a page field from the block form updates it for that page across all blocks that reference it
+- Available in blocks only (not at page type level)
+- Cannot be edited inline on the page yet
+
+**Page and Page List Fields:**
+- **Page**: Must specify a page_type, provides `_meta` property with `url`, `slug`, `name`
+- **Page List**: Outputs ALL pages of a given type (no editor selection), editors cannot choose which pages
+
+**Conditional Display:**
+- Fields can be shown/hidden based on preceding sibling field values at the same level
+- Comparison operators: "Equals" (`=`) or "Doesn't equal" (`!=`)
+- Works with Select, Toggle, Text, URL, and Number fields
+- The field being checked must come before the conditional field in the field list
+
+**Styling Rich Text and Markdown:**
+- Both output HTML via `{@html}`
+- Use `:global()` to style rendered HTML elements
+- Use a unique wrapper class to avoid affecting other elements
 
 ## Data Model & Collections
 
@@ -333,7 +366,7 @@ Fields are the content editing interface attached to blocks, page types, and sit
 - `page_type_sections`: Required sections (header/footer) for page types
 - `page_type_symbols`: Blocks available to a page type
 - `pages`: Individual page instances
-- `page_sections`: Sections on pages (body zone blocks)
+- `page_sections`: Sections on pages (body slot blocks)
 - `page_section_entries`: Content values for page sections
 - `library_symbols`: Reusable blocks in personal library
 - `library_symbol_groups`: Organization for library blocks

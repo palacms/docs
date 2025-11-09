@@ -1,9 +1,9 @@
 ---
 title: 'Writing Components'
-description: 'Build reusable Svelte components and turn them into content blocks.'
+description: 'Build reusable components and turn them into content blocks.'
 ---
 
-Components are the foundation of Pala. You write Svelte components, attach content fields to them, and they become blocks that editors can use to build pages. This guide covers everything you need to know about writing effective components.
+Components are the foundation of Pala. You write components using Svelte, attach content fields to them, and they become blocks that editors can use to build pages. This guide covers everything you need to know about writing effective components.
 
 ## Components vs Blocks
 
@@ -48,19 +48,17 @@ Every Pala component follows this structure:
 Let's build a simple Button component step by step:
 
 <Steps>
-<Step title="Start with props">
-  Define what data your component needs:
-  
-  ```svelte
-  <script>
-    export let text = "Click me";
-    export let href = "/";
-    export let variant = "primary"; // primary, secondary, outline
-  </script>
-  ```
-  
+<Step title="Identify the fields you need">
+  Think about what data your component needs. For a button block:
+
+  - `text`: The button text
+  - `href`: The link destination
+  - `variant`: The button style (primary, secondary, outline)
+
+  Fields will be automatically available in your component code.
+
   <Tip>
-  Always provide default values for props. This makes components work even if fields aren't filled in.
+  Plan your fields first, then reference them in your template. You can set default values in the field configuration.
   </Tip>
 </Step>
 
@@ -115,20 +113,23 @@ Let's build a simple Button component step by step:
 
 ## Best Practices
 
-### 1. Always Provide Defaults
+### 1. Handle Empty Values
 
-Components should work even with empty fields:
+Components should work gracefully even with empty fields:
 
 ```svelte
-<script>
-  // Good: Has defaults
-  export let headline = "";
-  export let subheadline = "";
-  
-  // Bad: No defaults (breaks if empty)
-  export let headline;
-  export let subheadline;
-</script>
+<!-- Good: Provides fallback values -->
+<h1>{headline || "Welcome"}</h1>
+<p>{subheadline || "Default description"}</p>
+
+<!-- Also good: Conditional rendering -->
+{#if headline}
+  <h1>{headline}</h1>
+{/if}
+
+{#if subheadline}
+  <p>{subheadline}</p>
+{/if}
 ```
 
 ### 2. Use Conditional Rendering
@@ -136,14 +137,9 @@ Components should work even with empty fields:
 Only show elements when content exists:
 
 ```svelte
-<script>
-  export let image_url = "";
-  export let caption = "";
-</script>
-
 {#if image_url}
   <figure>
-    <img src={image_url} alt={caption} />
+    <img src={image_url} alt={alt_text} />
     {#if caption}
       <figcaption>{caption}</figcaption>
     {/if}
@@ -153,19 +149,17 @@ Only show elements when content exists:
 
 ### 3. Handle Arrays Safely
 
-When working with repeater fields:
+When working with repeater fields, always check if the array has items:
 
 ```svelte
-<script>
-  export let items = [];
-</script>
-
 {#if items && items.length > 0}
   <ul>
     {#each items as item}
       <li>{item.name}</li>
     {/each}
   </ul>
+{:else}
+  <p>No items to display</p>
 {/if}
 ```
 
@@ -214,10 +208,6 @@ Always consider mobile devices:
 When using rich text fields, use `{@html}` to render HTML:
 
 ```svelte
-<script>
-  export let content = "";
-</script>
-
 <div class="rich-text">
   {@html content}
 </div>
@@ -228,12 +218,12 @@ When using rich text fields, use `{@html}` to render HTML:
     margin-top: 2rem;
     margin-bottom: 1rem;
   }
-  
+
   .rich-text :global(p) {
     margin-bottom: 1.5rem;
     line-height: 1.8;
   }
-  
+
   .rich-text :global(ul), .rich-text :global(ol) {
     margin-bottom: 1.5rem;
     padding-left: 2rem;
@@ -247,15 +237,13 @@ Only use `{@html}` with trusted content. Pala sanitizes rich text fields, but be
 
 ### Markdown Content
 
-If you're using markdown fields, you'll need to process them. Pala handles this automatically for markdown fields, but you can also use a markdown processor:
+If you're using markdown fields, Pala processes them automatically. But you can also use a markdown processor for additional control:
 
 ```svelte
 <script>
   import { marked } from 'marked'; // If you add this dependency
-  
-  export let markdown_content = "";
-  
-  $: html_content = marked(markdown_content);
+
+  $: html_content = marked(markdown_content || "");
 </script>
 
 <div class="markdown-content">
@@ -267,15 +255,12 @@ If you're using markdown fields, you'll need to process them. Pala handles this 
 
 ### Reactive Statements
 
-Use reactive statements (`$:`) for computed values:
+Use reactive statements (`$:`) for computed values based on fields:
 
 ```svelte
 <script>
-  export let items = [];
-  export let max_items = 5;
-  
-  $: displayed_items = items.slice(0, max_items);
-  $: has_more = items.length > max_items;
+  $: displayed_items = (items || []).slice(0, max_items);
+  $: has_more = (items || []).length > max_items;
 </script>
 
 {#each displayed_items as item}
@@ -293,9 +278,6 @@ Handle user interactions:
 
 ```svelte
 <script>
-  export let cta_text = "Click me";
-  export let cta_link = "/";
-  
   function handleClick() {
     // Analytics, tracking, etc.
     console.log('CTA clicked');
@@ -312,11 +294,6 @@ Handle user interactions:
 Use dynamic classes for variants:
 
 ```svelte
-<script>
-  export let variant = "default";
-  export let size = "medium";
-</script>
-
 <div class="card" class:primary={variant === "primary"} class:large={size === "large"}>
   <!-- content -->
 </div>
@@ -326,7 +303,7 @@ Use dynamic classes for variants:
     background: #667eea;
     color: white;
   }
-  
+
   .card.large {
     padding: 2rem;
   }
@@ -340,11 +317,6 @@ Build complex components from simpler ones:
 ```svelte
 <script>
   import Button from './Button.svelte';
-  
-  export let headline = "";
-  export let description = "";
-  export let cta_text = "";
-  export let cta_link = "/";
 </script>
 
 <section class="hero">
@@ -365,11 +337,6 @@ In Pala's component editor, you write single-file components. For composition, y
 For image-heavy components:
 
 ```svelte
-<script>
-  export let image_url = "";
-  export let alt_text = "";
-</script>
-
 <img src={image_url} alt={alt_text} loading="lazy" />
 ```
 
@@ -379,14 +346,13 @@ Use reactive statements efficiently:
 
 ```svelte
 <script>
-  export let items = [];
-  
   // Good: Only recalculates when items change
-  $: sorted_items = [...items].sort((a, b) => a.name.localeCompare(b.name));
-  
-  // Avoid: Recalculating on every render
-  let sorted_items = items.sort((a, b) => a.name.localeCompare(b.name));
+  $: sorted_items = [...(items || [])].sort((a, b) => a.name.localeCompare(b.name));
 </script>
+
+{#each sorted_items as item}
+  <div>{item.name}</div>
+{/each}
 ```
 
 ## Testing Your Components
@@ -417,13 +383,6 @@ Use browser dev tools in the preview to test:
 ### Card Component
 
 ```svelte
-<script>
-  export let title = "";
-  export let description = "";
-  export let image_url = "";
-  export let link = "";
-</script>
-
 <article class="card">
   {#if image_url}
     <img src={image_url} alt={title} />
@@ -438,6 +397,18 @@ Use browser dev tools in the preview to test:
     {/if}
   </div>
 </article>
+
+<style>
+  .card {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
+</style>
 ```
 </Accordion>
 
@@ -445,11 +416,6 @@ Use browser dev tools in the preview to test:
 ### Grid Layout
 
 ```svelte
-<script>
-  export let items = [];
-  export let columns = 3;
-</script>
-
 <section class="grid" style="--columns: {columns}">
   {#each items as item}
     <div class="grid-item">{item.content}</div>
@@ -462,7 +428,7 @@ Use browser dev tools in the preview to test:
     grid-template-columns: repeat(var(--columns), 1fr);
     gap: 2rem;
   }
-  
+
   @media (max-width: 768px) {
     .grid {
       grid-template-columns: 1fr;

@@ -1,0 +1,401 @@
+---
+title: 'Troubleshooting'
+description: 'Common issues and solutions for deploying and running Pala.'
+---
+
+This guide helps you solve common issues when deploying or running Pala.
+
+## Installation & Setup Issues
+
+### Setup screen doesn't appear
+
+**Symptoms:** Going to `/admin` redirects to sign-in instead of setup
+
+**Causes:**
+1. Superuser already exists (from environment variables or previous setup)
+2. Volume persisted from previous deployment
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Check if environment variables created a user">
+    If you set `PALA_SUPERUSER_EMAIL` and `PALA_SUPERUSER_PASSWORD`, a superuser was created automatically. Use those credentials to sign in.
+  </Accordion>
+
+  <Accordion title="Check if volume contains existing data">
+    ```bash
+    # Stop container
+    docker-compose down
+
+    # Check volume
+    docker volume inspect palacms-data
+
+    # If you want to start fresh, delete the volume
+    docker volume rm palacms-data
+
+    # Restart
+    docker-compose up -d
+    ```
+
+    <Warning>
+    Deleting the volume deletes all your data. Only do this for fresh installs.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+### Can't access after deployment
+
+**Symptoms:** Browser can't reach your Pala instance
+
+**Diagnostics:**
+
+```bash
+# Check if container is running
+docker ps | grep palacms
+
+# Check logs
+docker logs palacms
+
+# Check if port is accessible
+curl http://localhost:8080
+```
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Container not running">
+    ```bash
+    # Check why it stopped
+    docker logs palacms
+
+    # Restart it
+    docker start palacms
+    ```
+  </Accordion>
+
+  <Accordion title="Port not accessible">
+    1. Check firewall allows port 8080 (or your configured port)
+    2. Verify port mapping in docker-compose.yml: `- "8080:8080"`
+    3. Check if another service is using port 8080:
+    ```bash
+    sudo lsof -i :8080
+    ```
+  </Accordion>
+
+  <Accordion title="Domain not pointing to server">
+    1. Check DNS settings point to your server IP
+    2. Wait for DNS propagation (up to 48 hours)
+    3. Test with server IP directly: `http://YOUR_IP:8080`
+  </Accordion>
+</AccordionGroup>
+
+## Runtime Issues
+
+### "No space left on device" error
+
+**Cause:** Docker volume or host system out of disk space
+
+**Solutions:**
+
+```bash
+# Check Docker disk usage
+docker system df
+
+# Clean up unused images/containers
+docker system prune -a
+
+# Check host disk space
+df -h
+
+# If needed, resize volume or upgrade server
+```
+
+### Database locked errors
+
+**Symptoms:** Errors mentioning "database is locked"
+
+**Cause:** Multiple processes trying to write to SQLite simultaneously
+
+**Solutions:**
+
+1. Ensure only one Pala container is running:
+```bash
+docker ps | grep palacms
+```
+
+2. Restart the container:
+```bash
+docker-compose restart
+```
+
+3. If persists, check for file permissions:
+```bash
+docker exec palacms ls -la /app/pb_data
+```
+
+### Publishing fails or times out
+
+**Symptoms:** Publish button hangs or shows error
+
+**Diagnostics:**
+
+```bash
+# Check container logs during publish
+docker logs -f palacms
+```
+
+**Common Causes:**
+
+<AccordionGroup>
+  <Accordion title="Compilation errors in blocks">
+    Check browser console for JavaScript errors. Fix any Svelte compilation errors in your blocks.
+  </Accordion>
+
+  <Accordion title="Out of memory">
+    Increase Docker memory limit:
+    ```yaml
+    services:
+      palacms:
+        # ... other config
+        deploy:
+          resources:
+            limits:
+              memory: 2G
+    ```
+  </Accordion>
+
+  <Accordion title="Network timeout">
+    Check if your server can reach external CDNs (for Svelte compiler):
+    ```bash
+    docker exec palacms curl -I https://esm.sh
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Performance Issues
+
+### Slow editor loading
+
+**Causes:**
+- Large blocks with heavy dependencies
+- Slow network connection
+- Server resource constraints
+
+**Solutions:**
+
+<AccordionGroup>
+  <Accordion title="Optimize blocks">
+    - Remove unused dependencies
+    - Split large blocks into smaller ones
+    - Use lazy loading for images
+  </Accordion>
+
+  <Accordion title="Increase server resources">
+    Upgrade to a larger VPS or increase Railway/Fly.io resources.
+  </Accordion>
+
+  <Accordion title="Enable compression">
+    Configure gzip in your reverse proxy (see Deployment Guide).
+  </Accordion>
+
+  <Accordion title="Use a CDN">
+    Point your domain through Cloudflare for caching and compression.
+  </Accordion>
+</AccordionGroup>
+
+### Slow published site
+
+**Diagnostics:**
+- Test site speed: https://pagespeed.web.dev/
+- Check network waterfall in browser DevTools
+
+**Common Fixes:**
+
+- Optimize images (compress, use WebP)
+- Minimize JavaScript bundle size
+- Enable caching headers in reverse proxy
+- Use a CDN
+
+## Docker Issues
+
+### Image pull fails
+
+**Error:** `Error response from daemon: manifest for ghcr.io/palacms/palacms:latest not found`
+
+**Solutions:**
+
+1. Check if you're spelling the image name correctly
+2. Check your internet connection
+3. Try pulling manually:
+```bash
+docker pull ghcr.io/palacms/palacms:latest
+```
+
+### Permission errors with volume
+
+**Error:** `permission denied` when accessing `/app/pb_data`
+
+**Solution:**
+
+```bash
+# Check volume permissions
+docker exec palacms ls -la /app
+
+# Fix permissions
+docker exec palacms chown -R 1000:1000 /app/pb_data
+```
+
+### Container keeps restarting
+
+**Diagnostics:**
+
+```bash
+# Check why it's restarting
+docker logs palacms --tail=50
+
+# Check restart policy
+docker inspect palacms | grep -A 5 RestartPolicy
+```
+
+**Common Causes:**
+
+- Application crash (check logs)
+- Port already in use
+- Out of memory
+- Volume mount issues
+
+## Authentication Issues
+
+### Can't sign in
+
+**Symptoms:** "Invalid credentials" error
+
+**Checks:**
+
+1. Verify email/password are correct
+2. Check if account exists:
+```bash
+docker exec palacms ./palacms admin ls
+```
+
+3. Reset password via PocketBase admin:
+- Go to `https://your-domain.com/_/`
+- Sign in with superuser
+- Reset user password
+
+### Locked out of admin
+
+**Solution:** Create new superuser via command line:
+
+```bash
+docker exec -it palacms ./palacms admin create \
+  admin@example.com \
+  new-secure-password
+```
+
+## Migration & Upgrade Issues
+
+### Data loss after upgrade
+
+**Prevention:**
+Always backup before upgrading:
+
+```bash
+# Backup pb_data
+docker cp palacms:/app/pb_data ./backup_$(date +%Y%m%d)
+
+# Then upgrade
+docker-compose pull && docker-compose up -d
+```
+
+**Recovery:**
+Restore from backup:
+
+```bash
+# Stop container
+docker-compose down
+
+# Restore backup
+docker cp ./backup_20250101 palacms:/app/pb_data
+
+# Restart
+docker-compose up -d
+```
+
+### Blocks not working after upgrade
+
+**Cause:** Svelte version incompatibility
+
+**Solution:**
+
+1. Check release notes for breaking changes
+2. Update block code to match new Svelte version
+3. Re-publish all sites
+
+## Network & SSL Issues
+
+### SSL certificate errors
+
+**Common Causes:**
+
+<AccordionGroup>
+  <Accordion title="Certificate expired">
+    Certbot should auto-renew. If not:
+    ```bash
+    sudo certbot renew
+    sudo systemctl restart nginx
+    ```
+  </Accordion>
+
+  <Accordion title="Mixed content warnings">
+    Ensure all assets load via HTTPS. Check:
+    - Image URLs in blocks
+    - External scripts in head/foot HTML
+    - CSS file references
+  </Accordion>
+
+  <Accordion title="Certificate not trusted">
+    Make sure you're using certificates from a trusted CA (Let's Encrypt, not self-signed).
+  </Accordion>
+</AccordionGroup>
+
+### CORS errors
+
+**Symptoms:** Browser console shows CORS errors
+
+**Cause:** Accessing Pala from a different domain than configured
+
+**Solution:**
+
+Ensure `PALA_APP_URL` matches the domain you're accessing from.
+
+## Getting Help
+
+If you're still stuck:
+
+1. **Check the logs:**
+```bash
+docker logs palacms --tail=100 -f
+```
+
+2. **Search existing issues:**
+   - [GitHub Issues](https://github.com/palacms/palacms/issues)
+
+3. **Ask for help:**
+   - [Discord Community](https://discord.gg/pala)
+   - [GitHub Discussions](https://github.com/palacms/palacms/discussions)
+
+4. **File a bug report:**
+   - Include: OS, Docker version, Pala version, full error logs
+   - [Create Issue](https://github.com/palacms/palacms/issues/new)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Deployment Guide" icon="rocket" href="/reference/deployment">
+    Review deployment best practices
+  </Card>
+  <Card title="Environment Variables" icon="gear" href="/reference/environment-variables">
+    Configure Pala properly
+  </Card>
+</CardGroup>
