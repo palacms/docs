@@ -100,6 +100,40 @@ Numeric input for integers.
 ```
 </Accordion>
 
+<Accordion title="Date">
+Date picker that outputs dates in YYYY-MM-DD format.
+
+**Use for:**
+- Publication dates
+- Event dates
+- Deadlines
+- Any calendar dates
+
+**Component usage:**
+```svelte
+<!-- Raw YYYY-MM-DD format -->
+<time datetime={publish_date}>{publish_date}</time>
+
+<!-- Formatted for display -->
+<time datetime={publish_date}>
+  {new Date(publish_date).toLocaleDateString()}
+</time>
+
+<!-- Custom formatting -->
+<time datetime={publish_date}>
+  {new Date(publish_date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })}
+</time>
+```
+
+<Info>
+The Date field outputs a string in YYYY-MM-DD format (e.g., "2024-01-15"). Use JavaScript's `new Date()` constructor to parse and format it for display. The raw value is perfect for the `datetime` attribute in `<time>` elements.
+</Info>
+</Accordion>
+
 ## Selection Fields
 
 <Accordion title="Select">
@@ -642,7 +676,7 @@ Start with simple field types (Text, Image, Link) and add complexity (Repeaters,
   Use fields in page type configuration.
 </Card>
 
-<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
+<Card title="Building from Scratch" icon="rocket" href="/building-sites/your-first-site">
   See fields in action with real examples.
 </Card>
 </CardGroup>

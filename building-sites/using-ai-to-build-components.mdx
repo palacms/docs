@@ -1,5 +1,153 @@
 ---
 title: 'Using AI to Build Components'
-description: 'Generate components with AI assistance directly in the Pala editor.'
+description: 'Generate components with AI assistance.'
 ---
 
+Use AI to quickly generate block code, then paste into Pala and configure fields manually.
+
+<Info>
+A native AI integration is coming soon! Pala's philosophy is to be a creative tool where AI handles the boring parts and gets out of the way most of the time. The upcoming integration will help with repetitive tasks without being heavy-handed.
+</Info>
+
+## Prompt Template
+
+```
+Generate a Svelte 5 component for a [describe your block].
+
+Requirements:
+- Use Svelte 5 syntax (no export let - fields are globally available)
+- Use snake_case for all field names
+- Include null checks (e.g., {#if image?.url})
+- Make it responsive
+- Don't include imports unless needed
+
+Fields:
+- [list fields with types, e.g., "headline (text)", "image (image with url and alt)"]
+
+Style: [describe design]
+```
+
+## Workflow
+
+<Steps>
+<Step title="Generate code">
+  Use the prompt with Claude, ChatGPT, etc.
+</Step>
+
+<Step title="Paste into Pala">
+  Copy generated code into a new block's code editor.
+</Step>
+
+<Step title="Add fields">
+  Switch to Fields tab and manually add each field with proper types.
+</Step>
+
+<Step title="Test">
+  Preview and refine as needed.
+</Step>
+</Steps>
+
+## Example
+
+**Prompt:**
+```
+Generate a Svelte 5 component for a feature card.
+
+Requirements:
+- Use Svelte 5 syntax (no export let - fields are globally available)
+- Use snake_case for all field names
+- Include null checks
+- Responsive
+
+Fields:
+- icon (image with url and alt)
+- headline (text)
+- description (text)
+- cta_link (link with url and label)
+
+Style: Card with shadow, rounded corners, hover effect
+```
+
+**Result:**
+```svelte
+<div class="card">
+  {#if icon?.url}
+    <img src={icon.url} alt={icon.alt} />
+  {/if}
+
+  {#if headline}
+    <h3>{headline}</h3>
+  {/if}
+
+  {#if description}
+    <p>{description}</p>
+  {/if}
+
+  {#if cta_link?.url}
+    <a href={cta_link.url}>{cta_link.label || "Learn more"}</a>
+  {/if}
+</div>
+
+<style>
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+  }
+
+  @media (max-width: 768px) {
+    .card { padding: 1.5rem; }
+  }
+</style>
+```
+
+Then add fields in Pala: icon (Image), headline (Text), description (Text), cta_link (Link)
+
+## Common Issues
+
+**AI uses `export let`:**
+Remove it. Fields are globally available in Pala.
+
+```svelte
+<!-- ❌ Don't do this -->
+<script>
+  export let headline
+</script>
+
+<!-- ✅ Just use directly -->
+<h1>{headline}</h1>
+```
+
+**Missing null checks:**
+Add them, especially for images and links.
+
+```svelte
+<!-- ❌ Bad -->
+<img src={image.url} alt={image.alt} />
+
+<!-- ✅ Good -->
+{#if image?.url}
+  <img src={image.url} alt={image.alt} />
+{/if}
+```
+
+**Unnecessary imports:**
+Only import if you actually need Svelte lifecycle hooks or advanced features.
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Writing Components" icon="code" href="/building-sites/writing-components">
+  Learn to write components from scratch.
+</Card>
+
+<Card title="Working with Fields" icon="pen-to-square" href="/building-sites/working-with-fields">
+  Master field configuration.
+</Card>
+</CardGroup>

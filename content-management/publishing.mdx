@@ -1,5 +1,94 @@
 ---
 title: 'Publishing'
-description: 'Deploy your site changes to production with Pala hosting.'
+description: 'Deploy your site changes to production.'
 ---
 
+Publishing compiles your blocks into static HTML, CSS, and JavaScript and deploys them to your domain.
+
+## How It Works
+
+When you publish, Pala:
+
+1. Compiles all blocks to optimized JavaScript
+2. Generates static HTML for every page
+3. Copies assets to the output directory
+4. Deploys files to your domain
+
+Your site is accessible at `https://yourdomain.com/` while the admin stays at `https://yourdomain.com/admin/`.
+
+## Publishing a Site
+
+<Steps>
+<Step title="Click Publish">
+  In the toolbar, click "Publish" (or press `Cmd/Ctrl + P`).
+</Step>
+
+<Step title="Confirm">
+  In the dialog, click "Publish Changes" to confirm.
+</Step>
+
+<Step title="Wait for completion">
+  Publishing typically takes 10-30 seconds. You'll see a success message when done.
+</Step>
+</Steps>
+
+<Check>
+Your site is now live at your domain.
+</Check>
+
+## What Gets Published
+
+Every publish includes:
+
+- All pages
+- All blocks (recompiled)
+- All assets (images, files)
+- Site configuration
+
+<Tip>
+Even if you only change one thing, Pala rebuilds the entire site to ensure consistency.
+</Tip>
+
+## Auto-Save Behavior
+
+Most changes auto-save:
+- Page content edits
+- Adding/removing blocks
+- Reordering blocks
+
+**Manual save required for:**
+- Block editor (code/fields)
+- Section editor
+- Site settings editor
+
+<Warning>
+Always save in the block/section/site editor before publishing.
+</Warning>
+
+## Troubleshooting
+
+**Publish fails with an error:**
+- Check the error message for the specific block or page causing the issue
+- Review recent changes
+- Fix the issue and try again
+
+**Changes don't appear on live site:**
+- Hard refresh your browser (`Cmd/Ctrl + Shift + R`)
+- Wait 1-2 minutes for propagation
+- Verify you clicked "Publish Changes" in the dialog
+
+**Images not loading:**
+- Verify images were uploaded (not just linked externally)
+- Republish to ensure assets were copied
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Using the Editor" icon="pen-to-square" href="/content-management/using-the-editor">
+  Learn to create and edit pages.
+</Card>
+
+<Card title="Site Configuration" icon="gear" href="/reference/site-configuration">
+  Configure domains and settings.
+</Card>
+</CardGroup>

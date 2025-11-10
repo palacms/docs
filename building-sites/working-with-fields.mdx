@@ -31,14 +31,14 @@ Fields can be added to both blocks (for component-level editing) and page types 
   <section class="hero">
     <h1>{headline}</h1>
     <p>{description}</p>
-    {#if image_url}
-      <img src={image_url} alt={headline} />
+    {#if image?.url}
+      <img src={image.url} alt={image.alt} />
     {/if}
   </section>
   ```
 
   <Tip>
-  Fields are automatically available in your component code. Just reference them directly like `{headline}` or `{image_url}`.
+  Fields are automatically available in your component code. Just reference them directly like `{headline}` or `{image.url}`.
   </Tip>
 </Step>
 
@@ -61,10 +61,10 @@ Fields can be added to both blocks (for component-level editing) and page types 
 
 <Step title="Add more fields">
   Repeat for each prop you want to make editable:
-  
+
   - `description` → Rich Text field
-  - `image_url` → Image field
-  
+  - `image` → Image field
+
   <Info>
   You don't need to create fields for every prop. Only create fields for content you want editors to control.
   </Info>
@@ -99,18 +99,19 @@ Field names are case-sensitive. `cta_text` and `ctaText` are different variables
 A typical hero block might use these fields in the template:
 
 ```svelte
-<section class="hero" style="background-image: url({background_image})">
+<section class="hero" style={background_image?.url ? `background-image: url(${background_image.url})` : ''}>
   <h1>{headline}</h1>
   <p>{subheadline}</p>
-  <a href={cta_link}>{cta_text}</a>
+  {#if cta_link?.url}
+    <a href={cta_link.url}>{cta_link.label}</a>
+  {/if}
 </section>
 ```
 
 **Fields to create:**
 - `headline` (Text) - Main headline
 - `subheadline` (Text) - Supporting text
-- `cta_text` (Text) - Button text
-- `cta_link` (Link) - Button destination
+- `cta_link` (Link) - Button link with label
 - `background_image` (Image, optional) - Background image
 
 ### Text Block
@@ -133,7 +134,9 @@ An image with caption:
 
 ```svelte
 <figure>
-  <img src={image_url} alt={alt_text} />
+  {#if image?.url}
+    <img src={image.url} alt={image.alt} />
+  {/if}
   {#if caption}
     <figcaption>{caption}</figcaption>
   {/if}
@@ -141,8 +144,7 @@ An image with caption:
 ```
 
 **Fields to create:**
-- `image_url` (Image) - The image
-- `alt_text` (Text) - Alt text for accessibility
+- `image` (Image) - The image (includes URL and alt text)
 - `caption` (Text, optional) - Image caption
 
 ### Card Grid Block
@@ -153,13 +155,13 @@ A grid of cards using a repeater:
 <div class="grid cols-{columns}">
   {#each cards as card}
     <div class="card">
-      {#if card.image}
-        <img src={card.image} alt={card.title} />
+      {#if card.image?.url}
+        <img src={card.image.url} alt={card.image.alt || card.title} />
       {/if}
       <h3>{card.title}</h3>
       <p>{card.description}</p>
-      {#if card.link}
-        <a href={card.link}>Learn more</a>
+      {#if card.link?.url}
+        <a href={card.link.url}>{card.link.label || "Learn more"}</a>
       {/if}
     </div>
   {/each}
@@ -208,8 +210,8 @@ Show or hide elements based on field values:
 
 ```svelte
 <!-- Simple if -->
-{#if image_url}
-  <img src={image_url} alt={alt_text} />
+{#if image?.url}
+  <img src={image.url} alt={image.alt} />
 {/if}
 
 <!-- If/else -->
@@ -610,8 +612,8 @@ Always test your components with empty fields:
   <h1>{headline}</h1>
 {/if}
 
-{#if image_url}
-  <img src={image_url} alt={alt_text} />
+{#if image?.url}
+  <img src={image.url} alt={image.alt} />
 {/if}
 ```
 
@@ -732,7 +734,7 @@ Fields: title, description, image, link, category, tags, featured
   Learn how to write components that work well with fields.
 </Card>
 
-<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
+<Card title="Building from Scratch" icon="rocket" href="/building-sites/your-first-site">
   See fields in action with a complete site example.
 </Card>
 

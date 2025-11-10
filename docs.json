@@ -38,9 +38,7 @@
         "icon": "users",
         "pages": [
           "collaboration/setting-up-page-types-for-editors",
-          "collaboration/inviting-collaborators",
-          "collaboration/example-blog",
-          "collaboration/multi-dev-workflows"
+          "collaboration/inviting-collaborators"
         ]
       },
       {

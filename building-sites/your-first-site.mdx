@@ -1,6 +1,6 @@
 ---
-title: 'Your First Site'
-description: 'Create your first Pala site from scratch and understand the basic workflow.'
+title: 'Building from Scratch'
+description: 'Build a complete Pala site from the ground up and understand the full workflow.'
 ---
 
 This guide walks you through building a complete Pala site from scratch. You'll create multiple page types, build several blocks, and set up a site that's ready for content editors to use.
@@ -63,7 +63,7 @@ The Hero block will be the first thing visitors see on your homepage.
 
 <Step title="Write the component">
   ```svelte
-  <section class="hero" style={background_image ? `background-image: url(${background_image})` : ''}>
+  <section class="hero" style={background_image?.url ? `background-image: url(${background_image.url})` : ''}>
     <div class="hero-content">
       <h1>{headline}</h1>
       <p>{subheadline}</p>
@@ -218,7 +218,9 @@ A block for displaying images with optional captions.
 <Step title="Write the component">
   ```svelte
   <figure class="image-block" class:full-width={full_width}>
-    <img src={image_url} alt={alt_text} />
+    {#if image?.url}
+      <img src={image.url} alt={image.alt || alt_text} />
+    {/if}
     {#if caption}
       <figcaption>{caption}</figcaption>
     {/if}
@@ -255,11 +257,11 @@ A block for displaying images with optional captions.
 
 <Step title="Add fields">
   Add these fields:
-  
-  - `image_url` (Image) - The image to display
-  - `alt_text` (Text) - Alt text for accessibility
+
+  - `image` (Image) - The image to display (includes URL and alt text)
+  - `alt_text` (Text, optional) - Override alt text if needed
   - `caption` (Text, optional) - Image caption
-  - `full_width` (Boolean) - Whether to use full width
+  - `full_width` (Switch/Toggle) - Whether to use full width
 </Step>
 </Steps>
 
@@ -281,8 +283,8 @@ A flexible grid for displaying cards (useful for features, team members, etc.).
   <section class="card-grid" style="--columns: {columns}">
     {#each cards as card}
       <div class="card">
-        {#if card.image}
-          <img src={card.image} alt={card.title} />
+        {#if card.image?.url}
+          <img src={card.image.url} alt={card.image.alt || card.title} />
         {/if}
         <div class="card-content">
           <h3>{card.title}</h3>
@@ -463,14 +465,14 @@ Now let's create three page types that use these blocks.
 </Step>
 
 <Step title="Configure available blocks">
-  Add these blocks as available:
+  Add these blocks as available for the body slot:
   - Hero
   - Text
   - Image
   - Card Grid
-  
+
   <Info>
-  The Footer will be added site-wide, so we don't need it in individual page types.
+  These blocks will be available for editors to add in the body slot. We'll add the Footer to the footer slot later.
   </Info>
 </Step>
 
@@ -507,6 +509,10 @@ Now let's create three page types that use these blocks.
   - `excerpt` (Text) - Short description
   - `meta_title` (Text) - SEO title
   - `meta_description` (Text) - SEO description
+
+  <Info>
+  The Date field outputs YYYY-MM-DD format. Use `new Date(publish_date).toLocaleDateString()` in your components to format it for display.
+  </Info>
 </Step>
 </Steps>
 
@@ -582,7 +588,7 @@ Now let's create actual pages using these page types.
   Set:
   - Title: "Getting Started with Pala"
   - Author: Your name
-  - Publish date: Today's date
+  - Publish date: Select a date from the date picker
   - Excerpt: A short description
 </Step>
 
@@ -613,42 +619,35 @@ Now let's create actual pages using these page types.
 </Step>
 </Steps>
 
-## Step 5: Configure Navigation
+## Step 5: Add Footer to Page Types
 
-Set up your site's navigation menu:
+Add the Footer block to each page type so it appears on every page:
 
 <Steps>
-<Step title="Open navigation settings">
-  Go to Site Settings → Navigation.
+<Step title="Add Footer to Homepage page type">
+  Open the Homepage page type editor and add the Footer block to the **Footer slot**.
+
+  <Info>
+  Blocks in the footer slot appear on every page of this type and can't be removed by editors.
+  </Info>
 </Step>
 
-<Step title="Add menu items">
-  Add links to:
-  - Home (links to your homepage)
-  - About (links to your about page)
-  - Blog (links to blog listing, if you create one)
-  
+<Step title="Add Footer to other page types">
+  Repeat for Blog Post and About page types. Add the Footer block to each footer slot.
+
   <Tip>
-  Navigation is managed at the site level, so it appears consistently across all pages.
+  You can configure the Footer block content once, and it will be consistent across all page types that use it.
   </Tip>
 </Step>
-</Steps>
 
-## Step 6: Set Up Site-Wide Footer
-
-<Steps>
-<Step title="Configure footer">
-  Go to Site Settings → Footer.
-</Step>
-
-<Step title="Add footer content">
-  Use the Footer block settings to add:
+<Step title="Configure footer content">
+  Edit the Footer block to add:
   - Copyright text
   - Footer links (Privacy Policy, Terms, Contact, etc.)
 </Step>
 </Steps>
 
-## Step 7: Publish Your Site
+## Step 6: Publish Your Site
 
 <Steps>
 <Step title="Review all pages">
