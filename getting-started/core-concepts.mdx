@@ -5,55 +5,83 @@ description: 'Learn the fundamental concepts behind Pala: sites, page types, pag
 
 Understanding Pala's core concepts helps you build sites more effectively. Everything in Pala follows a clear hierarchy that separates structure from content, giving you control while empowering editors.
 
-## The Hierarchy
+## The Content Hierarchy
 
-Pala organizes content in a simple, predictable structure:
+Pala organizes content in three levels:
 
 ```
-Site → Page Types → Pages → Blocks → (optional) Sections
+Site → Pages → Sections
 ```
 
-Each level builds on the previous one, creating guardrails that keep designs intact while giving editors the freedom to manage content.
+This is your actual content structure - what lives in your database and what gets published.
 
-### Architecture Diagram
+**Page Types** and **Blocks** aren't part of this hierarchy - they're blueprints that define structure and behavior for pages and sections, respectively.
 
-Here's how the data model works:
+### Understanding the Structure
+
+Let's break down how everything fits together with three focused diagrams:
+
+**1. Content Hierarchy** - Your actual content structure:
 
 ```mermaid
 graph TB
-    Site[Site]
-    Site --> SiteFields[Fields<br/>Schema for global content]
-    Site --> SiteEntries[Entries<br/>Values: logo, nav, etc.]
-    Site --> Blocks[Blocks]
-    Site --> PageTypes[Page Types]
-    Site --> Pages[Pages]
+    Site[Site<br/>Your website]
+    Pages[Pages<br/>Individual pages]
+    Sections[Sections<br/>Content blocks on pages]
 
-    Blocks --> BlockCode[Code<br/>HTML, CSS, JavaScript]
-    Blocks --> BlockFields[Fields<br/>Schema for block content]
-
-    PageTypes --> PTFields[Fields<br/>Schema for page metadata]
-    PageTypes --> AvailableBlocks[Available Blocks<br/>Which blocks editors can use]
-    PageTypes --> Slots[Slots]
-
-    Slots --> Header[Header Slot<br/>Static sections]
-    Slots --> Body[Body Slot<br/>Editable or fixed]
-    Slots --> Footer[Footer Slot<br/>Static sections]
-
-    Pages --> PageType[Page Type<br/>Template this page uses]
-    Pages --> PageEntries[Entries<br/>Values for page fields]
-    Pages --> Sections[Sections]
-
-    Sections --> SectionBlock[Block<br/>Which block this uses]
-    Sections --> SectionEntries[Entries<br/>Values for block fields]
+    Site --> Pages
+    Pages --> Sections
 
     style Site fill:#ff6b35,stroke:#333,stroke-width:2px,color:#fff
-    style PageTypes fill:#004e89,stroke:#333,stroke-width:2px,color:#fff
     style Pages fill:#4a90e2,stroke:#333,stroke-width:2px,color:#fff
+    style Sections fill:#27ae60,stroke:#333,stroke-width:2px,color:#fff
+```
+
+**2. Templates & Structure** - How structure is defined:
+
+```mermaid
+graph LR
+    PageTypes[Page Types<br/>Templates for pages]
+    Blocks[Blocks<br/>Reusable components]
+
+    PageTypes -.defines structure.-> Pages[Pages]
+    Blocks -.instantiated as.-> Sections[Sections]
+
+    PageTypes --> PTFields[Page Fields<br/>title, description, etc.]
+    PageTypes --> Slots[Fixed Sections<br/>Header, Body, Footer]
+    PageTypes --> Available[Available Blocks<br/>Which blocks editors can use]
+    PageTypes --> HTML[Head HTML & Body Footer HTML<br/>Scripts, styles, meta tags]
+
+    Blocks --> Code[Code<br/>HTML, CSS, JS]
+    Blocks --> BlockFields[Block Fields<br/>headline, image, etc.]
+
+    style PageTypes fill:#004e89,stroke:#333,stroke-width:2px,color:#fff
     style Blocks fill:#f39c12,stroke:#333,stroke-width:2px,color:#fff
 ```
 
+**3. Data Model** - How content is stored:
+
+```mermaid
+graph TB
+    Fields[Fields<br/>Content schemas]
+    Entries[Entries<br/>Actual values]
+
+    Fields -.defines.-> Entries
+
+    Fields --> SiteFields[Site Fields<br/>logo, nav, etc.]
+    Fields --> PageFields[Page Fields<br/>title, description, etc.]
+    Fields --> BlockFields[Block Fields<br/>headline, image, etc.]
+
+    Entries --> SiteEntries[Site Entries<br/>Global content]
+    Entries --> PageEntries[Page Entries<br/>Page content]
+    Entries --> SectionEntries[Section Entries<br/>Block content]
+
+    style Fields fill:#9b59b6,stroke:#333,stroke-width:2px,color:#fff
+    style Entries fill:#1abc9c,stroke:#333,stroke-width:2px,color:#fff
+```
+
 <Info>
-**Terminology:** **Fields** define schemas, **Entries** store values. **Blocks** (called Symbols in code) are reusable components with code and field definitions. **Sections** are block instances on pages with their own entries.
+**Key concepts:** **Blocks** are self-contained full-width components written in Svelte. They define a content schema using fields and are instantiated as sections when added to pages. **Page Types** define which blocks can be used, fixed sections (header/body/footer), and page-level fields. **Fields** define data schemas, **Entries** store the actual values.
 </Info>
 
 ## Sites
@@ -62,142 +90,170 @@ A **site** is your top-level container. Each site is completely independent with
 
 - **Site-wide content** - Navigation menus, logo, footer content, social links
 - **Design system** - CSS variables for colors, typography, spacing
-- **Component library** - Your personal collection of reusable blocks
-- **Settings** - Domain configuration, SEO defaults, and more
+- **Page types** - Templates that define page structure
+- **Site-specific blocks** - Blocks available only to this site
+- **Domain** - Each site is tied to a specific hostname
 
-<Info>
-You can create multiple sites in Pala. Each site operates independently, so you can manage multiple client projects or separate staging/production environments.
-</Info>
-
-When you create a new site, you start with a blank canvas. You'll define page types, build blocks, and configure settings to match your project's needs.
+When you create a new site, you choose a starter:
+- Pick one of your existing sites as a template
+- Choose a starter from the marketplace (blog, portfolio, restaurant, etc.)
+- Start with a blank starter to build from scratch
 
 ## Page Types
 
-**Page types** are templates that define what kind of pages can exist in your site. Think of them as blueprints that control:
+**Page types** are templates that define the structure and capabilities of pages. To create one, you simply give it a name, icon, and color. Then you configure:
 
-- **Structure** - Which blocks are available for editors to use
-- **Required blocks** - Blocks that always appear (like headers or footers)
-- **Page-level fields** - Metadata like title, description, publish date
-- **Constraints** - What editors can and cannot modify
+- **Page fields** - Content like title, description, publish date, or relational fields (e.g. author, location, etc.)
+- **Available blocks** - Which blocks editors can add to pages
+- **Fixed sections** - Static header/body/footer sections that appear on every page of this type (also called "Static page types" in the UI when body sections are fixed)
 
-Common page types include:
-- Blog posts
-- Landing pages
-- Team member profiles
-- Event listings
-- Product pages
+### Example Page Type Uses
 
-<Example>
+Page types are completely customizable. Here are common examples:
+
+**Content Types:**
+- **Blog Post** - For individual blog articles
+- **Person** - For team member profiles
+- **Event** - For event listings
+- **Case Study** - For portfolio pieces
+- **Location** - For store/office locations
+- **Product** - For e-commerce items
+- **Documentation** - For help articles
+
+**Layout Types:**
+- **Blank** - No fixed sections, all blocks available
+- **Standard** - Header/footer with standard blocks
+- **Editorial** - Reading-focused layout with limited blocks
+
+Everything in Pala is a page. Whether it's a content entity (blog post, team member) or a flexible layout page (homepage, about page), so long as it has a common structure you create a page type for it.
+
+<Accordion title="Example: Blog Post Page Type">
 A "Blog Post" page type might include:
-- Required Header block at the top
-- Available blocks: Hero, Text, Image, Code Block, Call-to-Action
-- Page fields: Title, Author, Publish Date, Category, Featured Image
-- Not available: Footer blocks (reserved for site-wide footer)
-</Example>
+- **Fixed header sections** - Site navigation (static content across all blog posts) + page header (pulls title from page field) 
+- **Page fields**: Title, Description, Author, Publish Date, Featured Image
+- **Available blocks**: Hero, Text, Image, Code Block, Call-to-Action, Video
+- **Fixed footer sections** - Newsletter signup form (static content across all blog posts) + site footer
 
-Page types act as guardrails. Editors can create pages and choose which blocks to use, but they can't modify the page type itself or use blocks you haven't made available.
+Blocks unavailable might include those specific to other page types, like "Person Bio" blocks that depend on "Person" page fields.
+</Accordion>
+
+### About Fixed Sections
+
+Fixed sections (ie sections within the header/footer slots) contain static content that stays the same across all pages of that type. If you want dynamic content in a fixed section (like showing the page title), you should connect it to a page field:
+
+```svelte
+<!-- In your header block -->
+<h1>{title}</h1>  <!-- connects to page field -->
+```
+
+### Block Availability
+
+Pala doesn't differentiate between types of blocks - you control which blocks are available per page type. For one-time-use blocks (like a homepage hero), toggle it on, place it on the page, then toggle it off. Toggling it off doesn't remove it from existing pages, just prevents editors from adding it again.
+
+**Cross-page type dependencies:** When a block references fields from a different page type, Pala shows a broken link icon with "References Page Fields from [Page Type]". You can still add the block, but those fields won't have data. To use a block across multiple page types, give each field the same key (e.g., a header block with `title` fields connected to both "Blank" and "Standard" page types, both referenced as `{title}` in the code).
 
 ## Pages
 
-**Pages** are instances of page types with actual content. Editors create pages by:
+**Pages** are instances of page types. In Pala, everything is a page - whether it's content (blog post, team member) or layout (homepage, about page).
 
-1. Choosing a page type
-2. Adding blocks from the available options
-3. Filling in content fields
-4. Publishing when ready
+### Creating Pages
 
-Pages are built by stacking blocks vertically. Each page follows the structure defined by its page type, ensuring consistency while allowing flexibility in content and layout.
+To create a page:
 
-<Info>
-Pages can be published, saved as drafts, or scheduled for future publication. You control the publishing workflow through page type settings.
-</Info>
+1. **Open the page list** - Click "Pages" in the toolbar
+2. **Choose creation method:**
+   - Click "Create Page" for a top-level page
+   - Click "Create Subpage" next to a page to create a child page (or click the three-dot menu on a child-less page)
+3. **Configure the page:**
+   - **Name** - Internal identifier (or external if using `_meta.name`)
+   - **Slug** - URL path segment
+   - **Page Type** - Template to use (hidden if only one exists)
+4. **Add content:**
+   - Fill out page fields
+   - Add sections from available blocks (or edit existing default sections)
+   - Fixed sections (if any) are already in place and can't be removed
+5. **Publish when ready**
+
+Pages are built by stacking sections vertically. Each page follows the structure defined by its page type, ensuring consistency while allowing flexibility in content and layout.
 
 ## Blocks
 
-**Blocks** are the building blocks of your pages. They're Svelte components with content fields attached, making them both code and content.
+**Blocks** are self-contained full-width components written in Svelte. They define a content schema using fields and are instantiated as sections when added to pages.
 
-### Components vs Blocks
+### Two Types of Blocks
 
-**Components** are pure Svelte code:
-- Reusable UI elements (Button, Card, Hero)
-- Accept props and handle logic
-- No content fields attached
-- Can be used anywhere in your Svelte code
+**Library Blocks:**
+- Stored in your server library
+- Reusable across all your sites
+- Build once, use everywhere
 
-**Blocks** are components with content fields:
-- Same Svelte component code
-- Plus editable content fields (text, images, links)
-- Used specifically in page types and pages
-- Editors can modify content, not code
-
-<Example>
-You build a Hero component in Svelte with props for `headline`, `subheadline`, and `cta_text`. Then you attach content fields to it, creating a Hero block. Editors can now use this block and edit the headline, subheadline, and CTA text without touching any code.
-</Example>
-
-Blocks stack vertically to create page layouts. You build them once, add them to your component library, and reuse them across pages and sites.
+**Site-Specific Blocks:**
+- Available only to one site
+- Useful for site-specific components
+- Don't clutter your server library
 
 ### Block Structure
 
 Each block contains:
-- **Component code** - Svelte component with styling and logic
-- **Content fields** - Editable data (text, images, colors, etc.)
-- **Options** - Configurable settings editors can toggle
+- **Component code** - Svelte component with HTML, CSS, and JavaScript
+- **Content fields** - Editable data that editors can modify
+- **Field configuration** - Define what content can be edited and how
 
-<Info>
-Blocks live in your component library. Once created, they're available across all your sites, making it easy to build a personal library of your best work.
-</Info>
+Blocks stack vertically to create page layouts through sections (instances of blocks with actual content).
 
-## Sections (Optional)
+## Sections
 
-**Sections** are horizontal containers within blocks. They help organize complex layouts when a single block needs multiple columns or complex arrangements.
+**Sections** are instances of blocks placed on pages. When you add a block to a page, you're actually creating a section - an instance of that block with its own content.
 
-Use sections when you need:
-- Multi-column layouts within a block
-- Complex grid arrangements
-- Side-by-side content areas
-- Nested content structures
+Think of it this way:
+- **Block** = template/blueprint (the code and schema)
+- **Section** = instance (the actual content on a page)
 
-<Example>
-A "Features" block might use sections to create a three-column layout, with each section containing an icon, headline, and description. The block defines the overall styling, while sections organize the horizontal arrangement.
-</Example>
+<Accordion title="Example: Blocks vs Sections">
+You have a "Hero" block in your library. When editors add it to the homepage, they create a section. That section has its own content (headline, image, etc.) separate from other Hero sections on different pages.
+</Accordion>
 
-Most blocks don't need sections. Use them when a block's layout becomes complex enough to benefit from horizontal organization.
+This separation allows:
+- The same block to be used multiple times with different content
+- Block code updates to apply to all sections using that block
+- Each section to maintain its own content independently
 
 ## The Collaboration Model
 
 This hierarchy enables a powerful collaboration model:
 
-**Developer Phase:**
+**Developer Role:**
 - Define page types with available blocks
 - Set required blocks and constraints
 - Build and style components
 - Configure content fields
 
-**Editor Phase:**
+**Editor Role:**
 - Create pages from page types
-- Add and arrange blocks
+- Add and arrange sections from blocks
 - Edit content within fields
 - Publish when ready
 
 **Result:** Developers control structure and design. Editors control content and layout. Both work independently without breaking each other's work.
 
-<Warning>
-Editors cannot modify page types, edit component code, or change design settings. They work within the guardrails you define, ensuring designs stay intact while content remains flexible.
-</Warning>
+<Info>
+Editors cannot modify page types, edit component code, or change design settings (unless pre-configured, like block variations). They work within the guardrails you define, ensuring designs stay intact while content remains flexible.
+</Info>
 
 ## Putting It Together
 
 Here's how it all works in practice:
 
-1. **You create a site** and configure site-wide settings
-2. **You define page types** like "Blog Post" with available blocks
+1. **You create a site** and choose a starter
+2. **You define page types** like "Blog Post" with available blocks and fixed sections
 3. **You build blocks** (Hero, Text, Image) and add them to your library
 4. **Editors create pages** using the "Blog Post" page type
-5. **Editors add blocks** from the available options
-6. **Editors edit content** within each block's fields
+5. **Editors add sections** (instances of blocks) from the available options
+6. **Editors edit content** within each section's fields
 7. **Editors publish** when ready
+8. **Repeat** from step 2 as required or desired
 
-The hierarchy ensures consistency while maintaining flexibility. Every page follows its page type's structure, but editors have full control over which blocks to use and what content to include.
+The hierarchy ensures consistency while maintaining flexibility. Every page follows its page type's structure, but editors have full control over which sections to add and what content to include.
 
 ## Next Steps
 
