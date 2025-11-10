@@ -61,7 +61,7 @@ Deploy to any VPS for full control over your infrastructure.
 
 ### Prerequisites
 
-- VPS with Docker installed (Hetzner, DigitalOcean, etc.)
+- VPS with Docker installed ([Hetzner](https://www.hetzner.com), [DigitalOcean](https://www.digitalocean.com), etc.)
 - SSH access to your server
 - Domain name pointed to your server IP
 - Basic command line knowledge
@@ -203,6 +203,8 @@ Pala runs on port 8080. Use a reverse proxy for SSL and domain routing:
 
 ### Hetzner Cloud
 
+[Hetzner](https://www.hetzner.com) offers affordable VPS hosting in Europe and the US.
+
 1. Create a VPS (CX22 recommended: €4/month)
 2. Install Docker:
    ```bash
@@ -214,6 +216,8 @@ Pala runs on port 8080. Use a reverse proxy for SSL and domain routing:
 
 ### DigitalOcean
 
+[DigitalOcean](https://www.digitalocean.com) provides simple VPS hosting with excellent documentation.
+
 1. Create a Droplet ($6/month minimum)
 2. Choose "Docker" from one-click apps (or install manually)
 3. Follow VPS deployment steps above
@@ -221,7 +225,7 @@ Pala runs on port 8080. Use a reverse proxy for SSL and domain routing:
 
 ### Fly.io
 
-Fly.io offers a free tier with persistent volumes:
+[Fly.io](https://fly.io) offers a free tier with persistent volumes:
 
 <Steps>
   <Step title="Install Fly CLI">
@@ -301,7 +305,7 @@ PocketBase has built-in automated backups that you can configure through the adm
 
   <Step title="Choose backup location">
     - **Local storage**: Backups saved to `/app/pb_data/backups`
-    - **S3-compatible storage**: Configure AWS S3, Backblaze B2, or similar for off-site backups
+    - **S3-compatible storage**: Configure [AWS S3](https://aws.amazon.com/s3/), [Backblaze B2](https://www.backblaze.com/b2/cloud-storage.html), or similar for off-site backups
   </Step>
 
   <Step title="Set retention policy">

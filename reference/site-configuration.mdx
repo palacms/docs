@@ -164,6 +164,16 @@ To use site fields in Head HTML, first create the fields in Site → Fields, the
 <script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script>
 ```
 
+<Tip>
+**Filter admin routes from analytics:** Prevent `/admin` routes from being tracked:
+```html
+<!-- Only load analytics on public pages -->
+{#if !window.location.pathname.startsWith('/admin')}
+  <script defer data-domain="yourdomain.com" src="https://plausible.io/js/script.js"></script>
+{/if}
+```
+</Tip>
+
 **Custom Fonts:**
 ```html
 <!-- Google Fonts -->
