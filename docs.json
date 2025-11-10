@@ -16,8 +16,8 @@
         "pages": [
           "index",
           "getting-started/installation",
-          "getting-started/core-concepts",
-          "getting-started/quickstart"
+          "getting-started/quickstart",
+          "getting-started/core-concepts"
         ]
       },
       {

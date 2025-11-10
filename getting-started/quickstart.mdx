@@ -1,295 +1,201 @@
 ---
 title: 'Quickstart'
-description: 'Build and deploy your first Pala site in minutes.'
+description: 'Create and deploy your first Pala site in minutes.'
 ---
 
-This quickstart guide walks you through creating your first Pala site, building a simple block, and publishing it. You'll have a live site in under 10 minutes.
+This quickstart guide walks you through creating your first Pala site. You'll have a live site in under 5 minutes without a single terminal command.
 
 <Info>
 This guide assumes you've completed [installation](/getting-started/installation). If you haven't, start there first.
 </Info>
 
-## Step 1: Create Your First Site
+## Step 1: Enter Site Name
 
-When you first access Pala, you'll see the site creation screen. Here's what to do:
+When you first access Pala (or click "Create Site"), you'll see the site creation wizard.
 
 <Steps>
-<Step title="Enter site details">
-  Provide a name for your site. This is for internal organization and won't appear on your published site.
-  
-  <Check>
-  The site name can be changed later in settings.
-  </Check>
+<Step title="Enter a name">
+  Provide a name for your site. This is for internal organization.
+
+  <Tip>
+  You can change the site name later in site settings.
+  </Tip>
+</Step>
+</Steps>
+
+## Step 2: Choose a Starter
+
+Starters give you a head start with pre-configured page types, blocks, and sample content.
+
+<Steps>
+<Step title="Pick a starter source">
+  Choose where to get your starter from:
+
+  **Your Existing Sites:**
+  - Clone one of your existing sites as a template
+  - Includes all page types, blocks, and structure
+  - Perfect for creating similar sites
+
+  **Marketplace Starters** (all free for now):
+  - **Blog** - Ready-to-go blog with posts, categories, and author pages
+  - **Portfolio** - Showcase your work with project pages and case studies
+  - **Restaurant** - Menu pages, location info, and reservation forms
+  - **Business** - Landing page, services, team, and contact pages
+  - **Blank** - Minimal starter to build from scratch
 </Step>
 
-<Step title="Configure your domain">
-  If you're using Pala Cloud, your site will be available at a subdomain. For self-hosted installations, enter your domain name.
-  
-  <Warning>
-  For self-hosted installations, make sure your DNS is configured to point to your server before creating the site.
-  </Warning>
-</Step>
-
-<Step title="Complete site creation">
-  Click "Create Site" to initialize your new site. Pala will set up the database and default configuration.
+<Step title="Select your starter">
+  Click on the starter you want to use. You'll see a preview and description.
 </Step>
 </Steps>
 
 <Check>
-Your site is created! You'll now see your site dashboard with options to create page types, build blocks, and manage content.
+Your starter is selected! It includes page types, sample pages, and pre-configured blocks.
 </Check>
 
-## Step 2: Create a Page Type
+## Step 3: Add Additional Blocks (Optional)
 
-Page types define what kind of pages editors can create. Let's create a simple "Homepage" page type:
+You can add extra blocks to your site from your server library or the marketplace.
 
 <Steps>
-<Step title="Navigate to page types">
-  In your site dashboard, click "Page Types" in the sidebar, then click "Create Page Type".
+<Step title="Browse available blocks">
+  - **Server Library**: Your personal collection of reusable blocks
+  - **Marketplace**: Community blocks (all free for now)
 </Step>
 
-<Step title="Configure the page type">
-  - **Name**: "Homepage"
-  - **Description**: "Landing page for the site"
-  - **Slug**: "homepage" (used in URLs)
-  
+<Step title="Select blocks to add">
+  Click blocks you want to include:
+  - Hero sections
+  - Text blocks
+  - Image galleries
+  - Call-to-action buttons
+  - Contact forms
+  - And more...
+
   <Info>
-  The slug determines the URL structure. A page of this type will be accessible at `/homepage` by default.
+  These blocks get added to your site but won't be pre-connected to fields. You'll connect them manually as needed. The blocks included with your starter are already connected and ready to use.
   </Info>
 </Step>
 
-<Step title="Set available blocks">
-  For now, leave the available blocks empty. We'll add blocks in the next step after we create one.
-  
-  Click "Create" to save the page type.
+<Step title="Finish creation">
+  Click "Create Site" to complete the setup.
 </Step>
 </Steps>
 
 <Check>
-Your "Homepage" page type is created and ready. Next, we'll build a block to use with it.
+Your site is created with your chosen starter and selected blocks!
 </Check>
 
-## Step 3: Build Your First Block
+## Step 4: Explore Your New Site
 
-Blocks are the building blocks of your pages. Let's create a simple Hero block:
+Your site is now ready to edit and customize.
 
 <Steps>
-<Step title="Open the component editor">
-  Click "Component Library" in the sidebar, then "Create Block". This opens the in-browser code editor.
+<Step title="View the dashboard">
+  You'll see your site editor with:
+  - **Pages** - Sample pages from your starter
+  - **Page Types** - Pre-configured templates
+  - **Blocks** - All available blocks (from starter + your additions)
+  - **Site Fields** - Global content like logo and navigation
 </Step>
 
-<Step title="Write the component code">
-  Replace the default code with a simple Hero component:
-  
-  ```svelte
-  <script>
-    // Content fields will be added here
-  </script>
-  
-  <section class="hero">
-    <h1>Welcome to Pala</h1>
-    <p>Build beautiful sites with code and content together.</p>
-    <a href="/about" class="button">Get Started</a>
-  </section>
-  
-  <style>
-    .hero {
-      padding: 4rem 2rem;
-      text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-    
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-    
-    .hero p {
-      font-size: 1.25rem;
-      margin-bottom: 2rem;
-      opacity: 0.9;
-    }
-    
-    .button {
-      display: inline-block;
-      padding: 0.75rem 2rem;
-      background: white;
-      color: #667eea;
-      text-decoration: none;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      transition: transform 0.2s;
-    }
-    
-    .button:hover {
-      transform: translateY(-2px);
-    }
-  </style>
-  ```
-  
-  <Tip>
-  The editor provides syntax highlighting, auto-completion, and instant preview. Make changes and see them update in real-time.
-  </Tip>
+<Step title="Edit a page">
+  Click "Pages" in the toolbar, then click on any page to edit it:
+  - Edit content by clicking on sections
+  - Add new sections from available blocks
+  - Reorder sections by dragging
+  - Fill in page fields like title and description
 </Step>
 
-<Step title="Add content fields">
-  Now let's make the text editable by adding fields. Click "Add Field" and create:
-  
-  - **Field name**: `headline` (Text field)
-  - **Field name**: `subheadline` (Text field)
-  - **Field name**: `cta_text` (Text field)
-  - **Field name**: `cta_link` (Text field)
-
-  Fields are automatically available in your component—just reference them:
-
-  ```svelte
-  <section class="hero">
-    <h1>{headline}</h1>
-    <p>{subheadline}</p>
-    <a href={cta_link} class="button">{cta_text}</a>
-  </section>
-
-  <style>
-    /* ... existing styles ... */
-  </style>
-  ```
-</Step>
-
-<Check>
-Your component now has editable fields. Editors can change the headline, subheadline, and CTA text without touching code.
-</Check>
-
-<Step title="Save the block">
-  Click "Save Block" and give it a name: "Hero". This adds it to your component library.
+<Step title="Customize content">
+  Update the sample content:
+  - Replace placeholder text with your content
+  - Upload your images
+  - Update site fields (logo, navigation, footer)
+  - Adjust colors and styling as needed
 </Step>
 </Steps>
 
-<Check>
-Your Hero block is saved to your component library and ready to use across all your sites.
-</Check>
+## Step 5: Publish Your Site
 
-## Step 4: Add the Block to Your Page Type
-
-Now let's make this block available for editors to use:
+When you're ready to go live:
 
 <Steps>
-<Step title="Edit the page type">
-  Go back to "Page Types" and click on your "Homepage" page type to edit it.
-</Step>
-
-<Step title="Add available blocks">
-  In the "Available Blocks" section, click "Add Block" and select your "Hero" block.
-  
-  <Info>
-  You can add multiple blocks here. Editors will be able to choose from any block you make available.
-  </Info>
-</Step>
-
-<Step title="Save changes">
-  Click "Save" to update the page type.
-</Step>
-</Steps>
-
-<Check>
-Your page type now includes the Hero block. Editors can now use it when creating pages.
-</Check>
-
-## Step 5: Create Your First Page
-
-Now let's create an actual page using the page type we just set up:
-
-<Steps>
-<Step title="Create a new page">
-  Click "Pages" in the sidebar, then "Create Page".
-</Step>
-
-<Step title="Choose page type">
-  Select "Homepage" as the page type.
-</Step>
-
-<Step title="Add the Hero block">
-  Click "Add Block" and select "Hero" from the available blocks.
-</Step>
-
-<Step title="Edit the content">
-  Click on the Hero block to open the editor. You'll see form fields for:
-  - Headline
-  - Subheadline
-  - CTA Text
-  - CTA Link
-  
-  Fill in your content:
-  - **Headline**: "Welcome to My Site"
-  - **Subheadline**: "Built with Pala CMS"
-  - **CTA Text**: "Learn More"
-  - **CTA Link**: "/about"
-  
-  <Tip>
-  You can also use the visual editor to see your changes in real-time as you type.
-  </Tip>
-</Step>
-
-<Step title="Save the page">
-  Click "Save" to save your page as a draft, or "Publish" to make it live immediately.
-</Step>
-</Steps>
-
-<Check>
-Your first page is created with the Hero block! You can now preview it or publish it to make it live.
-</Check>
-
-## Step 6: Publish Your Site
-
-Your page is ready to go live:
-
-<Steps>
-<Step title="Review your page">
-  Use the preview feature to see how your page looks before publishing.
+<Step title="Review your changes">
+  Use the preview to see how your site looks.
 </Step>
 
 <Step title="Publish">
-  Click "Publish" on your page. Pala will generate a static site and deploy it.
-  
+  Click "Publish" (or press ⌘P). Pala will:
+  - Compile all your blocks
+  - Generate static HTML
+  - Deploy to your domain
+
   <Check>
-  Your site is now live! Visit the URL shown in your site settings to see it.
+  Your site is now live!
   </Check>
 </Step>
 </Steps>
 
 <Info>
-Pala generates static HTML, CSS, and JavaScript for maximum performance. Your site is automatically optimized for SEO and speed.
+Pala generates static HTML, CSS, and JavaScript for fast performance. For further optimization, run your site through [PageSpeed Insights](https://pagespeed.web.dev/) to identify improvements like image compression and WebP formats.
 </Info>
 
-## What's Next?
+## Accessing Your Site
 
-You've built your first Pala site! Here's where to go from here:
+Your site is published and hosted from the same domain:
+
+- **Live site**: `https://yourdomain.com/`
+- **Pala admin**: `https://yourdomain.com/admin/`
+
+<Tip>
+The admin panel is always at `/admin/` on your domain. Your published site lives at the root.
+</Tip>
+
+## Learn More
+
+You've created your first Pala site! Here's where to go from here:
 
 <CardGroup cols={2}>
-<Card title="Your First Site" icon="rocket" href="/building-sites/your-first-site">
-  Follow a complete walkthrough to build a full-featured site with multiple blocks and page types.
+<Card title="Core Concepts" icon="lightbulb" href="/getting-started/core-concepts">
+  Understand how Pala's architecture works
+</Card>
+
+<Card title="Building from Scratch" icon="rocket" href="/building-sites/your-first-site">
+  Build a site from the ground up and learn the fundamentals
 </Card>
 
 <Card title="Writing Components" icon="code" href="/building-sites/writing-components">
-  Learn best practices for building reusable components and blocks.
+  Learn to build custom blocks with Svelte
 </Card>
 
 <Card title="Defining Page Types" icon="layer-group" href="/building-sites/defining-page-types">
-  Master page types to create powerful content structures for editors.
-</Card>
-
-<Card title="Working with Fields" icon="pen-to-square" href="/building-sites/working-with-fields">
-  Explore all the field types available for making blocks editable.
+  Master page types to create content structures
 </Card>
 </CardGroup>
 
 ## Common Next Steps
 
-- **Add more blocks**: Create Text, Image, and Call-to-Action blocks to build richer pages
-- **Create more page types**: Set up Blog Post, About, and Contact page types
-- **Customize styling**: Use CSS variables in your site settings to create a design system
-- **Invite editors**: Add team members who can create and edit content without touching code
+**Customize Your Site:**
+- Edit page content and add your own text/images
+- Adjust site fields (logo, navigation, footer)
+- Modify page types to fit your needs
+
+**Build New Blocks:**
+- Create custom blocks for your specific needs
+- Add them to your server library for reuse
+- Make them available to specific page types
+
+**Create More Pages:**
+- Use existing page types to create new pages
+- Organize pages with parent/child relationships
+- Build out your site structure
+
+**Invite Collaborators:**
+- Add team members as editors
+- They can create and edit content without touching code
+- You maintain control over structure and design
 
 <Tip>
-The component library stores all your blocks. Once created, they're available across all your sites, making it easy to build a personal library of reusable components.
+Blocks in your server library can be added to any site. They get copied in, giving you a starting point to customize for each site's needs.
 </Tip>
