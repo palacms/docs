@@ -63,6 +63,7 @@
         "group": "Reference",
         "icon": "book",
         "pages": [
+          "reference/architecture",
           "reference/field-types",
           "reference/site-configuration",
           "reference/keyboard-shortcuts",
@@ -83,11 +84,6 @@
           "anchor": "GitHub",
           "href": "https://github.com/palacms/palacms",
           "icon": "github"
-        },
-        {
-          "anchor": "Discord",
-          "href": "https://discord.gg/pala",
-          "icon": "discord"
         }
       ]
     }

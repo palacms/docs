@@ -1,0 +1,281 @@
+---
+title: 'Architecture'
+description: 'How Pala works under the hood.'
+---
+
+Understanding Pala's architecture helps with self-hosting, troubleshooting, and contributing to the project.
+
+## System Overview
+
+**Single Application:**
+- SvelteKit frontend + PocketBase backend in one binary
+- SQLite database stores code and content
+- Files (images, uploads) stored in filesystem (or optional S3)
+- No microservices, no separate database server
+- Minimal operational overhead
+
+**What This Means:**
+- One process to run and monitor
+- SQLite file contains code/content, filesystem has assets
+- Simple backups (database + storage directory)
+- Easy to reason about and debug
+
+## Data Flow
+
+### Development Workflow
+
+```
+1. Developer writes Svelte block code in CodeMirror
+   ↓
+2. Code saved to SQLite (site_symbols table)
+   ↓
+3. Live preview compiles code on-the-fly
+   ↓
+4. Fields configured and saved to database
+   ↓
+5. Block available to editors
+```
+
+### Publishing Workflow
+
+```
+1. User clicks Publish
+   ↓
+2. Svelte compiler processes all blocks
+   ↓
+3. Generates static HTML/CSS/JS for each page
+   ↓
+4. Files written to pb_data/storage/sites/[hostname]/
+   ↓
+5. Site served as static files
+```
+
+## Key Components
+
+### PocketBase
+
+**Role:** Backend, database, auth, file storage, realtime
+
+- SQLite database management
+- User authentication and permissions
+- File uploads and serving (local filesystem or S3)
+- Realtime subscriptions for live updates
+- Custom API routes
+
+**Files:**
+- Database: `pb_data/data.db`
+- Storage: `pb_data/storage/` (local) or S3 bucket (optional)
+- Backups: `pb_data/backups/`
+
+<Info>
+PocketBase can be configured to use S3-compatible storage (AWS S3, Cloudflare R2, etc.) instead of local filesystem for uploaded files. This is useful for scaling or when using ephemeral hosting.
+</Info>
+
+### Svelte Compiler
+
+**Role:** Transforms block code into production JavaScript
+
+**Where it runs:**
+- **In the browser** using Web Workers (not server-side)
+- Rollup worker for JavaScript bundling
+- PostCSS worker for CSS processing
+- Svelte compiler runs in worker thread
+
+**When it runs:**
+- On publish: Compiles all blocks to static files
+- In preview: Compiles blocks for live preview
+- Not during content edits (content changes don't trigger compilation)
+
+**Process:**
+1. Fetches block HTML/CSS/JS from database
+2. Injects content variables from fields
+3. Compiles in browser worker (parallel processing)
+4. Generates static HTML for each page
+
+<Tip>
+Browser-based compilation means no server CPU usage during builds. All compilation happens client-side, making the server lightweight and scalable.
+</Tip>
+
+### CodeMirror
+
+**Role:** Code editor for developers
+
+**Features:**
+- Syntax highlighting for HTML, CSS, JavaScript
+- Autocompletion for field variables
+- Error detection
+- Keyboard shortcuts (`Cmd/Ctrl + 1/2/3` to switch panes)
+
+### TipTap
+
+**Role:** Rich text editor for content
+
+**Features:**
+- WYSIWYG editing with formatting toolbar
+- Markdown shortcuts
+- Paste from Word/Google Docs
+- Link editing
+
+## File Structure
+
+```
+pb_data/
+├── data.db                    # SQLite database (code, content, config)
+├── storage/
+│   ├── sites/
+│   │   └── [hostname]/        # Published static sites
+│   │       ├── index.html
+│   │       ├── _app/          # Compiled JavaScript bundles
+│   │       └── [page]/        # Individual page HTML files
+│   └── _pb_uploads/           # User uploaded files
+└── backups/                   # Automatic database backups
+```
+
+## Database Schema
+
+**Key Collections:**
+
+- `sites`: Site configuration and settings
+- `site_symbols`: Block code (HTML, CSS, JS)
+- `site_symbol_fields`: Field definitions for blocks
+- `site_symbol_entries`: Field values/content
+- `page_types`: Page type configurations
+- `pages`: Individual pages
+- `page_sections`: Block instances on pages
+- `page_section_entries`: Content for block instances
+
+**Why This Structure:**
+- Blocks (symbols) are reusable across pages
+- Content (entries) is separate from code (symbols)
+- Pages reference blocks via sections
+- Supports multi-locale content (entries have locale field)
+
+## How Publishing Works
+
+### Static Site Generation
+
+**Step 1: Compile blocks**
+- Fetch all blocks used on the site
+- Compile each block's Svelte code
+- Generate optimized JavaScript bundles
+- Output to `_app/` directory
+
+**Step 2: Generate pages**
+- For each page, fetch content from database
+- Inject content into compiled blocks
+- Render to static HTML
+- Write to `[page]/index.html`
+
+**Step 3: Copy assets**
+- Copy uploaded images/files
+- Generate CSS files
+- Update manifest and meta files
+
+**Result:**
+- Static HTML files for every page
+- Shared JavaScript bundles
+- Fast, CDN-friendly output
+- No database queries on page load
+
+## Preview vs Published
+
+**Preview (in editor):**
+- Compiles blocks on-demand
+- Shows unsaved changes
+- Uses iframe for isolation
+- Hot module replacement for fast updates
+
+**Published (live site):**
+- Pre-compiled static files
+- No build step on request
+- Served directly by PocketBase
+- Fast, cacheable responses
+
+## Realtime Updates
+
+Pala uses PocketBase's realtime subscriptions for live collaboration:
+
+**What syncs in realtime:**
+- Block code/content changes
+- Page structure updates
+- User activity indicators
+- Field value updates
+
+**How it works:**
+- WebSocket connection to PocketBase
+- Subscribe to specific collections
+- Receive updates as they happen
+- UI updates automatically
+
+## Performance Characteristics
+
+**Database:**
+- SQLite is fast for read-heavy workloads
+- Single-file makes backups trivial
+- No network latency (in-process database)
+- Scales to millions of rows
+
+**Publishing:**
+- Compile time grows linearly with page count
+- ~3-20 seconds for most sites
+- Compilation is parallelized in browser workers
+- Limited by user's browser/device, not server
+- Static output is extremely fast to serve
+
+**Editor:**
+- CodeMirror handles large files well
+- Preview compilation is cached
+- Realtime updates are throttled
+- UI stays responsive during saves
+
+## Self-Hosting Considerations
+
+**System Requirements:**
+- Linux/macOS/Windows
+- 1GB RAM minimum 
+- Persistent disk storage
+- Docker optional but recommended
+
+**Scaling:**
+- Compilation happens client-side (no server CPU for builds)
+- Server only needs to serve API requests and static files
+- Horizontal scaling not needed (static output can be served from CDN)
+- Database size grows with content (~1MB per 50 pages)
+- Use S3 storage if file uploads become large
+
+**Backups:**
+- SQLite file contains code/content (`pb_data/data.db`)
+- Storage directory contains uploaded files (`pb_data/storage/`)
+- Backup both database + storage directory
+- Or use PocketBase's built-in backup command (handles both)
+- If using S3, only need to backup database
+
+## Technology Stack Summary
+
+**Frontend:**
+- SvelteKit 2
+- Svelte 5 (with runes)
+- TailwindCSS
+- CodeMirror 6
+- TipTap 2
+
+**Backend:**
+- PocketBase (Go)
+- SQLite 3
+
+**Build Tools:**
+- Vite
+- Svelte compiler
+- esbuild
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Installation" icon="download" href="/getting-started/installation">
+  Set up Pala for development or production.
+</Card>
+
+<Card title="Core Concepts" icon="lightbulb" href="/getting-started/core-concepts">
+  Understand Pala's mental model.
+</Card>
+</CardGroup>
