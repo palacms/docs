@@ -47,7 +47,7 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 		Pala's architecture is intentionally simple—a single monolithic application with a SQLite database. This means self-hosting requires minimal operational overhead. No complex microservices, separate database servers, or distributed systems to manage.
 
 		<Warning>
-			**Persistent Storage Required**: Pala stores all code, content, and data in a SQLite database that requires persistent disk storage. It will NOT work on serverless platforms like Vercel, Netlify, or Cloudflare Pages.
+			**Persistent Storage Required**: Pala stores uses a SQLite database that requires persistent disk storage. It will NOT work on some serverless platforms like Vercel, Netlify, or Cloudflare Pages.
 		</Warning>
 
 		### Choose Your Hosting Path
@@ -100,7 +100,6 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 			For contributing to Pala or testing locally:
 
 			- **devenv** ([install here](https://devenv.sh/)) or **Dev Container** compatible environment (VS Code)
-			- **Node.js 22+** and **npm**
 			- **Git**
 
 			**Local Development Steps:**
@@ -111,6 +110,15 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 					git clone https://github.com/palacms/palacms.git
 					cd palacms
 					```
+				</Step>
+
+				<Step title="Open the devenv shell">
+					```bash
+					devenv shell
+					```
+					<Info>
+					  If you have configured direnvto automatically open the devenv shell, you may ignore this step.
+					</Info>
 				</Step>
 
 				<Step title="Install dependencies">
@@ -142,7 +150,7 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 			</Steps>
 
 			<Warning>
-				Local development is for testing only. All code and content is stored in the database, so you'll need a persistent server environment for production use.
+				Local development is for testing only. All code and content is stored in local database under `pb_data` directory.
 			</Warning>
 		</Accordion>
 
@@ -156,7 +164,7 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 
 		<Steps>
 			<Step title="Point your domain to the server">
-				Configure your DNS to point your domain name to the server where you'll host Pala CMS.
+				Configure your DNS to point your domain name to the server where you'll host Pala.
 			</Step>
 
 			<Step title="Prepare Docker deployment">
@@ -166,11 +174,11 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 
 				**Optional environment variables** (only take effect on first start):
 				- `PALA_APP_URL` - Sets base URL used for generating links in the backend (e.g., emails)
-				- `PALA_SUPERUSER_EMAIL` + `PALA_SUPERUSER_PASSWORD` - Creates initial superuser account
-				- `PALA_USER_EMAIL` + `PALA_USER_PASSWORD` - Creates initial user account
+				- `PALA_SUPERUSER_EMAIL` + `PALA_SUPERUSER_PASSWORD` - Creates initial superuser account for accessing PocketBase dashboard.
+				- `PALA_USER_EMAIL` + `PALA_USER_PASSWORD` - Creates initial user account for accessing PalaCMS.
 
 				<CodeGroup>
-					```yaml:compose.yaml
+					```yaml compose.yaml
 					services:
 					  palacms:
 					    image: ghcr.io/palacms/palacms:latest
@@ -191,7 +199,7 @@ Pala offers two installation options: a hosted cloud platform for managed hostin
 					  palacms-data:
 					```
 
-					```bash:docker run
+					```bash docker run
 					docker run -d \
 					  --name palacms \
 					  --restart always \

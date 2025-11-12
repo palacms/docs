@@ -8,7 +8,7 @@ Understanding Pala's architecture helps with self-hosting, troubleshooting, and 
 ## System Overview
 
 **Single Application:**
-- SvelteKit frontend + PocketBase backend in one binary
+- SvelteKit frontend + PocketBase backend, all in one binary
 - SQLite database stores code and content
 - Files (images, uploads) stored in filesystem (or optional S3)
 - No microservices, no separate database server
@@ -17,38 +17,37 @@ Understanding Pala's architecture helps with self-hosting, troubleshooting, and 
 **What This Means:**
 - One process to run and monitor
 - SQLite file contains code/content, filesystem has assets
-- Simple backups (database + storage directory)
+- Simple backups (database + storage in `pb_data` directory)
 - Easy to reason about and debug
 
 ## Data Flow
 
-### Development Workflow
-
-```
-1. Developer writes Svelte block code in CodeMirror
-   ↓
-2. Code saved to SQLite (site_symbols table)
-   ↓
-3. Live preview compiles code on-the-fly
-   ↓
-4. Fields configured and saved to database
-   ↓
-5. Block available to editors
-```
-
-### Publishing Workflow
-
-```
-1. User clicks Publish
-   ↓
-2. Svelte compiler processes all blocks
-   ↓
-3. Generates static HTML/CSS/JS for each page
-   ↓
-4. Files written to pb_data/storage/sites/[hostname]/
-   ↓
-5. Site served as static files
-```
+<Columns cols={2}>
+  <Card title="Development Workflow">
+    <div class="flex justify-center">
+      ```mermaid
+        flowchart TB
+          a["1\. Developer writes Svelte block code in CodeMirror"] -->
+          b["2\. Code saved to SQLite (site_symbols table)"] -->
+          c["3\. Live preview compiles code in browser"] -->
+          d["4\. Fields configured and saved to database"] -->
+          f["Block available to editors"]
+      ```
+    </div>
+  </Card>
+  <Card title="Publishing Workflow">
+     <div class="flex justify-center">
+      ```mermaid
+        flowchart TB
+          a["1\. User clicks Publish"] -->
+          b["2\. Svelte compiler processes all blocks"] -->
+          c["3\. Generates static HTML/CSS/JS for each page"] -->
+          d["4\. Files written to pb_data/storage/sites/[hostname]/"] -->
+          f["Site served as static files"]
+      ```
+    </div>
+  </Card>
+</Columns>
 
 ## Key Components
 
@@ -58,17 +57,17 @@ Understanding Pala's architecture helps with self-hosting, troubleshooting, and 
 
 - SQLite database management
 - User authentication and permissions
-- File uploads and serving (local filesystem or S3)
+- File uploads and serving (local filesystem and optinally S3)
 - Realtime subscriptions for live updates
 - Custom API routes
 
 **Files:**
 - Database: `pb_data/data.db`
-- Storage: `pb_data/storage/` (local) or S3 bucket (optional)
+- Storage: `pb_data/storage/`
 - Backups: `pb_data/backups/`
 
 <Info>
-PocketBase can be configured to use S3-compatible storage (AWS S3, Cloudflare R2, etc.) instead of local filesystem for uploaded files. This is useful for scaling or when using ephemeral hosting.
+  PocketBase can be configured to use S3-compatible storage (AWS S3, Cloudflare R2, etc.) instead of local filesystem for uploaded files. This is useful for scaling.
 </Info>
 
 ### Svelte Compiler
@@ -79,7 +78,6 @@ PocketBase can be configured to use S3-compatible storage (AWS S3, Cloudflare R2
 - **In the browser** using Web Workers (not server-side)
 - Rollup worker for JavaScript bundling
 - PostCSS worker for CSS processing
-- Svelte compiler runs in worker thread
 
 **When it runs:**
 - On publish: Compiles all blocks to static files
@@ -93,7 +91,7 @@ PocketBase can be configured to use S3-compatible storage (AWS S3, Cloudflare R2
 4. Generates static HTML for each page
 
 <Tip>
-Browser-based compilation means no server CPU usage during builds. All compilation happens client-side, making the server lightweight and scalable.
+  Browser-based compilation means no server CPU usage during builds. All compilation happens client-side, making the server lightweight and scalable.
 </Tip>
 
 ### CodeMirror
@@ -120,15 +118,16 @@ Browser-based compilation means no server CPU usage during builds. All compilati
 
 ```
 pb_data/
-├── data.db                    # SQLite database (code, content, config)
+├── data.db                     # SQLite database (code, content, config)
 ├── storage/
 │   ├── sites/
-│   │   └── [hostname]/        # Published static sites
-│   │       ├── index.html
-│   │       ├── _app/          # Compiled JavaScript bundles
-│   │       └── [page]/        # Individual page HTML files
-│   └── _pb_uploads/           # User uploaded files
-└── backups/                   # Automatic database backups
+│   │   └── [hostname]/         # Published static sites
+│   │       ├── index.html      # Home page
+│   │       ├── _symbols/       # Compiled JavaScript bundles
+│   │       ├── _uploads/       # Media files
+│   │       └── [page]/         # Individual page HTML files
+│   └── _pbc_xxxxxxxxxx/        # Uploaded files managed per collection
+└── backups/                    # Backups
 ```
 
 ## Database Schema
@@ -158,18 +157,19 @@ pb_data/
 - Fetch all blocks used on the site
 - Compile each block's Svelte code
 - Generate optimized JavaScript bundles
-- Output to `_app/` directory
+- Upload bundles
 
 **Step 2: Generate pages**
 - For each page, fetch content from database
 - Inject content into compiled blocks
 - Render to static HTML
-- Write to `[page]/index.html`
+- Upload pages
 
-**Step 3: Copy assets**
-- Copy uploaded images/files
-- Generate CSS files
-- Update manifest and meta files
+**Step 3: Update static site**
+- Copy new and updated JavaScript bundles to `_symbols/`
+- Copy new and updated media files to `_uploads/`
+- Copy new and updated pages to `[page]/index.html`
+- Clean up unused files
 
 **Result:**
 - Static HTML files for every page
@@ -188,7 +188,7 @@ pb_data/
 **Published (live site):**
 - Pre-compiled static files
 - No build step on request
-- Served directly by PocketBase
+- Served directly from file system
 - Fast, cacheable responses
 
 ## Realtime Updates
@@ -202,8 +202,7 @@ Pala uses PocketBase's realtime subscriptions for live collaboration:
 - Field value updates
 
 **How it works:**
-- WebSocket connection to PocketBase
-- Subscribe to specific collections
+- SSE connection to PocketBase
 - Receive updates as they happen
 - UI updates automatically
 
@@ -231,24 +230,23 @@ Pala uses PocketBase's realtime subscriptions for live collaboration:
 ## Self-Hosting Considerations
 
 **System Requirements:**
-- Linux/macOS/Windows
-- 1GB RAM minimum 
+- Docker
+- 1GB RAM minimum
 - Persistent disk storage
-- Docker optional but recommended
 
 **Scaling:**
 - Compilation happens client-side (no server CPU for builds)
 - Server only needs to serve API requests and static files
 - Horizontal scaling not needed (static output can be served from CDN)
 - Database size grows with content (~1MB per 50 pages)
-- Use S3 storage if file uploads become large
+- Use S3 storage to better integrate with content delivery networks
 
 **Backups:**
 - SQLite file contains code/content (`pb_data/data.db`)
 - Storage directory contains uploaded files (`pb_data/storage/`)
 - Backup both database + storage directory
-- Or use PocketBase's built-in backup command (handles both)
-- If using S3, only need to backup database
+- Or create and download backup from PocketBase
+- If using S3, you only need to backup the database
 
 ## Technology Stack Summary
 
@@ -260,22 +258,21 @@ Pala uses PocketBase's realtime subscriptions for live collaboration:
 - TipTap 2
 
 **Backend:**
-- PocketBase (Go)
+- Golang
+- PocketBase
 - SQLite 3
 
 **Build Tools:**
 - Vite
-- Svelte compiler
-- esbuild
 
 ## Next Steps
 
 <CardGroup cols={2}>
-<Card title="Installation" icon="download" href="/getting-started/installation">
-  Set up Pala for development or production.
-</Card>
+  <Card title="Installation" icon="download" href="/getting-started/installation">
+    Set up Pala for development or production.
+  </Card>
 
-<Card title="Core Concepts" icon="lightbulb" href="/getting-started/core-concepts">
-  Understand Pala's mental model.
-</Card>
+  <Card title="Core Concepts" icon="lightbulb" href="/getting-started/core-concepts">
+    Understand Pala's mental model.
+  </Card>
 </CardGroup>
